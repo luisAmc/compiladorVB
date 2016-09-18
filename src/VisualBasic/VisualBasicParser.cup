@@ -1,20 +1,55 @@
 package VisualBasic;
+
 import java_cup.runtime.*;
-import java.util.ArrayList;
-import java.util.Stack;
-
-action code {:
-	public boolean hay_error = false;
-	public boolean hay_retorno = false;
-	public String nombre_archivo;
-
-	public ArrayList<Tipo> retorno = new ArrayList();
-	public ArrayList<Integer> retorno_izq = new ArrayList();
-	public ArrayList<Integer> retorno_der = new ArrayList();
-:};
+import java.io.File;
+import java.util.List;
 
 parser code {:
+	@Override
+	public void report_error(String message, Object info) {
+		if (info instanceof String)
+			System.err.println(" " + info + " " + message + "\n");
+		else {
+			StringBuffer m = new StringBuffer("Error ");
+			if (info instanceof java_cup.runtime.Symbol) {
+				m.append(("(Se ha encontrado el token \"" + ((Symbol)info).value + "\" en la linea "
+					+ ((Symbol)info).left + 1 + ", columna " + ((Symbol)info).right + 1) + ")");
+			}
+			m.append(" : " + message);
+			System.err.println(m);
+		}
+	}
+	@Override
+	public void syntax_error(Symbol s){
+		System.err.println( "(Se ha encontrado el token \"" + sym.terminalNames[s.sym] + "\" en la linea " + (s.left+1) + ", columna" + (s.right+1) + ")" ); 
+        expected();
+	}
 
+	public void expected(){
+		List<Integer> token_list = this.expected_token_ids();
+		if (token_list.size() <= 0){
+			token_list = this.expected_token_ids();
+		}
+		String expected_tokens = "";
+		for (int i = 0 ; i < token_list.size(); i++){
+			int id = token_list.get(i);
+			if (id == 1){
+				continue;
+			}
+			String terminal_name = sym.terminalNames[id];
+			if (i == token_list.size() - 1){
+				expected_tokens += terminal_name;
+			}else{
+				expected_tokens += terminal_name + " , ";
+			}
+		}
+		System.err.print("Se esperaba alguno de los siguientes tokens:" + expected_tokens);
+	};
+
+	public void report_fatal_error(String message, Object info) {
+		report_error(message, info);
+		throw new RuntimeException("Fatal Syntax Error");
+	}
 :};
 
 /*Declaracion de terminales y no terminales*/
@@ -47,18 +82,52 @@ terminal COMA, PUNTO, FIN_LINEA, PAR_IZQ, PAR_DER;
 terminal Integer ENTERO_LITERAL;
 terminal Double REAL_LITERAL;
 terminal Character CARACTER_LITERAL;
-terminal String CADENA_LITERAL;
-terminal String IDENTIFICADOR;
+terminal String CADENA_LITERAL, IDENTIFICADOR;
 terminal Boolean BOOLEAN_LITERAL;
 // terminal Object TYPE_LITERAL;
 
 /*No terminales*/
-non terminal 	inicio_programa, raiz, sentencias_principales, sentencia_principal, declaracion_variables, declaracion_sub, declaracion_funcion,
-				declaracion_type, cuerpo_funcion, sentencias_cuerpo_funcion, sentencia_cuerpo_funcion, sentencia_for, sentencia_do_while, sentencia_if,
-				sentencia_else_if, sentencia_else, sentencia_consola, cuerpo_nuevo_tipo, sentencias_cuerpo_nuevo_tipo, declaracion_variables_nuevo_tipo,
-				parametros, lista_parametros, forma_de_paso, sentencia_asignacion, receptor_asignacion, sentencia_llamado_funcion, llamado_funcion,
-				argumentos, lista_argumentos, expresion, operador_aritmetico, operador_aritmetico_suma, operador_aritmetico_multiplicacion, operador_logico,
-				operador_relacional, operador_negacion, operador_distinto, propiedad, cadena_propiedades, fin_linea, termino, tipo_dato;
+non terminal inicio_programa;
+non terminal sentencias_principales; 
+non terminal sentencia_principal; 
+non terminal declaracion_variables; 
+non terminal declaracion_sub; 
+non terminal declaracion_funcion;
+non terminal declaracion_type;
+non terminal cuerpo_funcion; 
+non terminal sentencias_cuerpo_funcion; 
+non terminal sentencia_cuerpo_funcion; 
+non terminal sentencia_for_step; 
+non terminal sentencia_do_while; 
+non terminal sentencia_if;
+non terminal sentencia_else_if;
+non terminal sentencia_else; 
+non terminal sentencia_consola; 
+non terminal cuerpo_nuevo_tipo; 
+non terminal sentencias_cuerpo_nuevo_tipo; 
+non terminal declaracion_variables_nuevo_tipo;
+non terminal parametros;
+non terminal lista_parametros; 
+non terminal forma_de_paso; 
+non terminal sentencia_asignacion; 
+non terminal receptor_asignacion; 
+non terminal sentencia_llamado_funcion; 
+non terminal llamado_funcion;
+non terminal argumentos;
+non terminal lista_argumentos; 
+non terminal expresion; 
+non terminal operador_aritmetico; 
+non terminal operador_aritmetico_suma; 
+non terminal operador_aritmetico_multiplicacion; 
+non terminal operador_logico;
+non terminal operador_relacional;
+non terminal operador_negacion; 
+non terminal operador_distinto; 
+non terminal propiedad; 
+non terminal cadena_propiedades; 
+non terminal fin_linea; 
+non terminal termino; 
+non terminal tipo_dato;
 
 precedence left OP_OR;
 precedence left OP_AND;
@@ -66,9 +135,7 @@ precedence left OP_SUMA, OP_RESTA;
 precedence left OP_MULTIPLICACION, OP_DIVISION;
 precedence left OP_MENOR_QUE, OP_MENOR_IGUAL_QUE, OP_MAYOR_QUE, OP_MAYOR_IGUAL_QUE, OP_IGUAL;
 
-inicio_programa						::=	raiz;
-
-raiz								::=	fin_linea sentencias_principales
+inicio_programa						::=	fin_linea sentencias_principales
 										| sentencias_principales
 										| ;
 
@@ -81,13 +148,25 @@ sentencia_principal 				::=	declaracion_variables fin_linea
 										| declaracion_type fin_linea;
 
 /*TODO: Gramatica para Dim a, b, c As Integer*/
-declaracion_variables				::=	DIM IDENTIFICADOR AS tipo_dato;
+declaracion_variables				::=	DIM IDENTIFICADOR AS tipo_dato
+										| DIM error {:parser.report_error("declaracion_variables: Se esperaba IDENTIFICADOR", "\t");:} AS tipo_dato
+										| DIM IDENTIFICADOR error {:parser.report_error("declaracion_variables: Se esperaba AS", "\t");:} tipo_dato;
 
-declaracion_sub						::=	SUB IDENTIFICADOR parametros fin_linea cuerpo_funcion END SUB;
+declaracion_sub						::=	SUB IDENTIFICADOR parametros fin_linea cuerpo_funcion END SUB
+										| SUB error{:parser.report_error("declaracion_sub: Se esperaba IDENTIFICADOR", "\t");:} parametros fin_linea cuerpo_funcion END SUB
+										| SUB IDENTIFICADOR parametros fin_linea cuerpo_funcion error{:parser.report_error("declaracion_sub: Se esperaba END", "\t");:} SUB
+										| SUB IDENTIFICADOR parametros fin_linea cuerpo_funcion END error{:parser.report_error("declaracion_sub: Se esperaba SUB", "\t");:};
 
-declaracion_funcion					::=	FUNCTION IDENTIFICADOR parametros AS tipo_dato fin_linea cuerpo_funcion END FUNCTION;
+declaracion_funcion					::=	FUNCTION IDENTIFICADOR parametros AS tipo_dato fin_linea cuerpo_funcion END FUNCTION
+										| FUNCTION error{:parser.report_error("declaracion_funcion: Se esperaba IDENTIFICADOR", "\t");:} parametros AS tipo_dato fin_linea cuerpo_funcion END FUNCTION
+										| FUNCTION IDENTIFICADOR parametros error{:parser.report_error("declaracion_funcion: Se esperaba AS", "\t");:} tipo_dato fin_linea cuerpo_funcion END FUNCTION
+										| FUNCTION IDENTIFICADOR parametros AS tipo_dato fin_linea cuerpo_funcion error{:parser.report_error("declaracion_funcion: Se esperaba END", "\t");:} FUNCTION
+										| FUNCTION IDENTIFICADOR parametros AS tipo_dato fin_linea cuerpo_funcion END error{:parser.report_error("declaracion_funcion: Se esperaba FUNCTION", "\t");:};
 
-declaracion_type					::=	TYPE IDENTIFICADOR fin_linea cuerpo_nuevo_tipo END TYPE;
+declaracion_type					::=	TYPE IDENTIFICADOR fin_linea cuerpo_nuevo_tipo END TYPE
+										| TYPE error{:parser.report_error("declaracion_type: Se esperaba IDENTIFICADOR", "\t");:} fin_linea cuerpo_nuevo_tipo END TYPE
+										| TYPE IDENTIFICADOR fin_linea cuerpo_nuevo_tipo error{:parser.report_error("declaracion_type: Se esperaba END", "\t");:} TYPE
+										| TYPE IDENTIFICADOR fin_linea cuerpo_nuevo_tipo END error{:parser.report_error("declaracion_type: Se esperaba TYPE", "\t");:};
 
 cuerpo_funcion						::=	sentencias_cuerpo_funcion
 										| ;
@@ -96,27 +175,48 @@ sentencias_cuerpo_funcion			::=	sentencia_cuerpo_funcion
 										| sentencias_cuerpo_funcion sentencia_cuerpo_funcion;
 
 sentencia_cuerpo_funcion 			::=	declaracion_variables fin_linea
-										| sentencia_for fin_linea
+										| sentencia_for_step fin_linea
 										| sentencia_do_while fin_linea
 										| sentencia_if fin_linea
 										| sentencia_consola fin_linea
 										| sentencia_llamado_funcion fin_linea
 										| sentencia_asignacion fin_linea;
 
-sentencia_for						::=	FOR IDENTIFICADOR OP_IGUAL expresion TO expresion fin_linea cuerpo_funcion NEXT IDENTIFICADOR;
+sentencia_for_step					::=	FOR IDENTIFICADOR OP_IGUAL expresion TO expresion STEP ENTERO_LITERAL fin_linea cuerpo_funcion NEXT IDENTIFICADOR
+										| FOR error{:parser.report_error("sentencia_for_step: Se esperaba IDENTIFICADOR", "\t");:} OP_IGUAL expresion TO expresion STEP ENTERO_LITERAL fin_linea cuerpo_funcion NEXT IDENTIFICADOR
+										| FOR IDENTIFICADOR error{:parser.report_error("sentencia_for_step: Se esperaba OP_IGUAL", "\t");:} expresion TO expresion STEP ENTERO_LITERAL fin_linea cuerpo_funcion NEXT IDENTIFICADOR
+										| FOR IDENTIFICADOR OP_IGUAL expresion error{:parser.report_error("sentencia_for_step: Se esperaba TO", "\t");:} expresion STEP ENTERO_LITERAL fin_linea cuerpo_funcion NEXT IDENTIFICADOR
+										| FOR IDENTIFICADOR OP_IGUAL expresion TO expresion error{:parser.report_error("sentencia_for_step: Se esperaba STEP", "\t");:} ENTERO_LITERAL fin_linea cuerpo_funcion NEXT IDENTIFICADOR
+										| FOR IDENTIFICADOR OP_IGUAL expresion TO expresion STEP error{:parser.report_error("sentencia_for_step: Se esperaba ENTERO_LITERAL", "\t");:} fin_linea cuerpo_funcion NEXT IDENTIFICADOR
+										| FOR IDENTIFICADOR OP_IGUAL expresion TO expresion STEP ENTERO_LITERAL fin_linea cuerpo_funcion error{:parser.report_error("sentencia_for_step: Se esperaba NEXT", "\t");:} IDENTIFICADOR
+										| FOR IDENTIFICADOR OP_IGUAL expresion TO expresion STEP ENTERO_LITERAL fin_linea cuerpo_funcion NEXT error{:parser.report_error("sentencia_for_step: Se esperaba IDENTIFICADOR", "\t");:};
 
-sentencia_do_while					::=	DO WHILE expresion fin_linea cuerpo_funcion LOOP;
+/*TODO: Agregar DO LOOP UNTIL expresion*/
+sentencia_do_while					::=	DO WHILE expresion fin_linea cuerpo_funcion LOOP
+										| DO error{:parser.report_error("sentencia_do_while: Se esperaba WHILE", "\t");:} expresion fin_linea cuerpo_funcion LOOP
+										| DO WHILE expresion fin_linea cuerpo_funcion error{:parser.report_error("sentencia_do_while: Se esperaba LOOP", "\t");:};
 
-sentencia_if 						::=	IF expresion THEN fin_linea cuerpo_funcion sentencia_else_if sentencia_else END IF;
+sentencia_if 						::=	IF expresion THEN fin_linea cuerpo_funcion sentencia_else_if sentencia_else END IF
+										| IF expresion error{:parser.report_error("sentencia_if: Se esperaba THEN", "\t");:} fin_linea cuerpo_funcion sentencia_else_if sentencia_else END IF
+										| IF expresion THEN fin_linea cuerpo_funcion sentencia_else_if sentencia_else error{:parser.report_error("sentencia_if: Se esperaba END", "\t");:} IF
+										| IF expresion THEN fin_linea cuerpo_funcion sentencia_else_if sentencia_else_if END error{:parser.report_error("sentencia_if: Se esperaba IF", "\t");:}
+										| IF expresion THEN fin_linea cuerpo_funcion END IF
+										| IF expresion THEN fin_linea cuerpo_funcion sentencia_else END IF;
 
 sentencia_else_if					::=	ELSE_IF expresion THEN fin_linea cuerpo_funcion sentencia_else_if
-										| ;
+										| ELSE_IF expresion error{:parser.report_error("sentencia_else_if: Se esperaba THEN", "\t");:} fin_linea cuerpo_funcion sentencia_else_if
+										| ELSE_IF expresion THEN fin_linea cuerpo_funcion error{:parser.report_error("sentencia_else_if: Se esperaba sentencia_else_if", "\t");:}/*
+										| */;
 
-sentencia_else 						::=	ELSE fin_linea cuerpo_funcion
-										| ;
+sentencia_else 						::=	ELSE fin_linea cuerpo_funcion/*
+										| */;
 
 sentencia_consola					::=	WRITE PAR_IZQ termino PAR_DER
-										| READ PAR_IZQ termino PAR_DER;
+										| WRITE error{:parser.report_error("sentencia_consola WRITE: Se esperaba \"(\"", "\t");:} PAR_DER
+										| WRITE PAR_IZQ termino error{:parser.report_error("sentencia_consola WRITE: Se esperaba \")\"", "\t");:}
+										| READ PAR_IZQ termino PAR_DER
+										| READ error{:parser.report_error("sentencia_consola READ: Se esperaba \"(\"", "\t");:} termino PAR_DER
+										| READ PAR_IZQ termino error{:parser.report_error("sentencia_consola READ: Se esperaba \")\"", "\t");:};
 
 cuerpo_nuevo_tipo					::=	sentencias_cuerpo_nuevo_tipo
 										| ;
@@ -127,10 +227,17 @@ sentencias_cuerpo_nuevo_tipo		::=	declaracion_variables_nuevo_tipo fin_linea
 declaracion_variables_nuevo_tipo	::=	IDENTIFICADOR AS tipo_dato;
 
 parametros							::=	PAR_IZQ PAR_DER
-										| PAR_IZQ lista_parametros PAR_DER;
+										| PAR_IZQ error{:parser.report_error("parametros: Se esperaba \")\"", "\t");:}
+										| PAR_IZQ lista_parametros PAR_DER
+										| PAR_IZQ lista_parametros error{:parser.report_error("parametros: Se esperaba \")\"", "\t");:};
 
 lista_parametros					::=	forma_de_paso IDENTIFICADOR AS tipo_dato
-										| lista_parametros COMA forma_de_paso IDENTIFICADOR AS tipo_dato;
+										| forma_de_paso error{:parser.report_error("lista_parametros: Se esperaba IDENTIFICADOR", "\t");:} AS tipo_dato
+										| forma_de_paso IDENTIFICADOR error{:parser.report_error("lista_parametros: Se esperaba AS", "\t");:} tipo_dato
+										| lista_parametros COMA forma_de_paso IDENTIFICADOR AS tipo_dato
+										| lista_parametros error{:parser.report_error("lista_parametros: Se esperaba COMA", "\t");:} forma_de_paso IDENTIFICADOR AS tipo_dato
+										| lista_parametros COMA forma_de_paso error{:parser.report_error("lista_parametros: Se esperaba IDENTIFICADOR", "\t");:} AS tipo_dato
+										| lista_parametros COMA forma_de_paso IDENTIFICADOR error{:parser.report_error("lista_parametros: Se esperaba AS", "\t");:} tipo_dato;
 
 forma_de_paso 						::=	BYVAL
 										| BYREF;
@@ -141,15 +248,18 @@ sentencia_asignacion				::=	receptor_asignacion OP_IGUAL expresion
 receptor_asignacion					::=	IDENTIFICADOR
 										| propiedad;
 
-sentencia_llamado_funcion			::=	CALL llamado_funcion;
+sentencia_llamado_funcion			::=	CALL llamado_funcion
+										| CALL error{:parser.report_error("Sentencia llamado funcion: Se esperaba el llamado a la funcion", "\t");:};
 
 llamado_funcion 					::=	IDENTIFICADOR argumentos;
 
 argumentos							::=	PAR_IZQ PAR_DER
-										| PAR_IZQ lista_argumentos PAR_DER;
+										| PAR_IZQ error{:parser.report_error("Argumentos: Se esperaba \")\"", "\t");:}
+										| PAR_IZQ lista_argumentos PAR_DER
+										| PAR_IZQ lista_argumentos error{:parser.report_error("Argumentos: Se esperaba \")\"", "\t");:};
 
 lista_argumentos					::=	expresion
-										| lista_argumentos COMA expresion;
+										| expresion COMA lista_argumentos;
 
 expresion							::=	expresion operador_aritmetico expresion
 										| expresion operador_relacional expresion
@@ -179,7 +289,8 @@ operador_logico						::=	OP_AND
 
 operador_negacion					::=	OP_RESTA;
 
-operador_distinto					::=	OP_MENOR_QUE OP_MAYOR_QUE;
+operador_distinto					::=	OP_MENOR_QUE OP_MAYOR_QUE
+										| OP_MENOR_QUE error{:parser.report_error("operador_distinto: Se esperaba OP_MAYOR_QUE", "\t");:};
 
 propiedad							::=	IDENTIFICADOR cadena_propiedades;
 

@@ -14,6 +14,10 @@ import java_cup.runtime.*;
 %state YYCADENA
 %state YYCOMENTARIO
 
+%eofval{
+	return symbol(sym.EOF);
+%eofval}
+
 %{
 	StringBuilder string = new StringBuilder();
 	private Symbol symbol(int type) {
@@ -100,7 +104,7 @@ ParDer			= ")"
 Numero = {Digito}+
 Decimal = {Digito}+"."{Digito}+
 Bool = "True"|"False"
-Caracter = {letra}
+Caracter = {Letra}
 
 %%
 <YYINITIAL>{
@@ -113,7 +117,7 @@ Caracter = {letra}
 	{Double}			{return symbol(sym.REAL);}
 	{Boolean}			{return symbol(sym.BOOLEAN);}
 	{Char}				{return symbol(sym.CARACTER);}
-	{String}			{return symbol(sym.STRING);}
+	{String}			{return symbol(sym.CADENA);}
 	{Type}				{return symbol(sym.TYPE);}
 
 	/*Declaracion de variables*/

@@ -6,13 +6,12 @@
 package VisualBasic;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.PrintStream;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -25,7 +24,6 @@ public class MainWindow extends javax.swing.JFrame {
      */
     public MainWindow() {
         initComponents();
-        setLocationRelativeTo(null);
     }
 
     /**
@@ -40,174 +38,142 @@ public class MainWindow extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel2 = new javax.swing.JPanel();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        ta_lexer_text = new javax.swing.JTextArea();
-        jButton2 = new javax.swing.JButton();
-        jLabel2 = new javax.swing.JLabel();
-        tf_lexer_file_name = new javax.swing.JTextField();
-        jButton3 = new javax.swing.JButton();
-        jSeparator1 = new javax.swing.JSeparator();
-        jLabel1 = new javax.swing.JLabel();
-        tf_test_file_name = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        ta_test_file_text = new javax.swing.JTextArea();
-        jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        ta_lexer_result = new javax.swing.JTextArea();
+        ta_source_code = new javax.swing.JTextArea();
+        jPanel3 = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        ta_output = new javax.swing.JTextArea();
+        tf_file_name = new javax.swing.JTextField();
+        btn_parse_file = new javax.swing.JButton();
+        btn_generate_ast = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        jMenuItem1 = new javax.swing.JMenuItem();
+        jMenuItem2 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        ta_lexer_text.setColumns(20);
-        ta_lexer_text.setRows(5);
-        jScrollPane2.setViewportView(ta_lexer_text);
+        ta_source_code.setEditable(false);
+        ta_source_code.setColumns(20);
+        ta_source_code.setRows(5);
+        jScrollPane1.setViewportView(ta_source_code);
 
-        jButton2.setText("Generar");
-        jButton2.addMouseListener(new java.awt.event.MouseAdapter() {
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1036, Short.MAX_VALUE)
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 689, Short.MAX_VALUE)
+        );
+
+        jTabbedPane1.addTab("Visor de código", jPanel2);
+
+        ta_output.setEditable(false);
+        ta_output.setColumns(20);
+        ta_output.setRows(5);
+        jScrollPane2.setViewportView(ta_output);
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 1036, Short.MAX_VALUE)
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 689, Short.MAX_VALUE)
+        );
+
+        jTabbedPane1.addTab("Salida", jPanel3);
+
+        btn_parse_file.setText("Parsear archivo");
+        btn_parse_file.setEnabled(false);
+        btn_parse_file.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton2MouseClicked(evt);
+                btn_parse_fileMouseClicked(evt);
             }
         });
 
-        jLabel2.setText("Archivo lexer:");
+        btn_generate_ast.setText("Ver AST");
+        btn_generate_ast.setEnabled(false);
 
-        tf_lexer_file_name.setEditable(false);
-
-        jButton3.setText("Abrir");
+        jButton3.setText("Abrir archivo");
         jButton3.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jButton3MouseClicked(evt);
             }
         });
 
-        jSeparator1.setOrientation(javax.swing.SwingConstants.VERTICAL);
-
-        jLabel1.setText("Archivo prueba:");
-
-        tf_test_file_name.setEditable(false);
-
-        jButton1.setText("Abrir");
-        jButton1.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton1MouseClicked(evt);
-            }
-        });
-
-        ta_test_file_text.setColumns(20);
-        ta_test_file_text.setRows(5);
-        jScrollPane3.setViewportView(ta_test_file_text);
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addContainerGap(20, Short.MAX_VALUE)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 626, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 22, Short.MAX_VALUE))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(100, 100, 100)
-                        .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(tf_lexer_file_name, javax.swing.GroupLayout.PREFERRED_SIZE, 307, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 595, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(79, 79, 79)
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(tf_test_file_name, javax.swing.GroupLayout.PREFERRED_SIZE, 286, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton1)))
-                .addGap(25, 25, 25))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton2)
-                .addGap(613, 613, 613))
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap(41, Short.MAX_VALUE)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel2)
-                            .addComponent(tf_lexer_file_name, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton3))
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 464, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jSeparator1)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel1)
-                            .addComponent(tf_test_file_name, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton1))
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane3)))
-                .addGap(18, 18, 18)
-                .addComponent(jButton2)
-                .addGap(18, 18, 18))
-        );
-
-        jTabbedPane1.addTab("Lexer", jPanel2);
-
-        ta_lexer_result.setEditable(false);
-        ta_lexer_result.setColumns(20);
-        ta_lexer_result.setRows(5);
-        jScrollPane1.setViewportView(ta_lexer_result);
-
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1297, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 583, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-
-        jTabbedPane1.addTab("Resultado", jPanel3);
-
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(39, 39, 39)
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1322, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(41, Short.MAX_VALUE))
+                .addGap(30, 30, 30)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1038, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jButton3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(tf_file_name, javax.swing.GroupLayout.PREFERRED_SIZE, 651, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btn_parse_file, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(btn_generate_ast, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(39, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(51, 51, 51)
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(40, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(btn_parse_file)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btn_generate_ast))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(26, 26, 26)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(tf_file_name, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton3))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 10, Short.MAX_VALUE)
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 715, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(28, 28, 28))
         );
+
+        jMenu1.setText("Opciones del programa");
+
+        jMenuItem1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItem1.setText("Abrir Archivo");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem1);
+
+        jMenuItem2.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItem2.setText("Generar Lexer");
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem2ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem2);
+
+        jMenuBar1.add(jMenu1);
+
+        setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -218,80 +184,55 @@ public class MainWindow extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton3MouseClicked
-        JFileChooser fc = new JFileChooser();
-        fc.showOpenDialog(this);
-        lexer_file = fc.getSelectedFile();
-        
-        String lexer_file_text = "", text_line = "";
-        
-        try {
-            if (lexer_file != null) {
-                BufferedReader reader = new BufferedReader(new FileReader(lexer_file));
-                
-                while ((text_line = reader.readLine()) != null)
-                    lexer_file_text += text_line + "\n";
-                
-                reader.close();
-            }
-        } catch (Exception ex) {
-            lexer_file_text = "Error al abrir el archivo!";
-        }
-        
-        ta_lexer_text.setText(lexer_file_text);
-        tf_lexer_file_name.setText(lexer_file.getPath());
+        // Abrir archivo
+        openFile();
     }//GEN-LAST:event_jButton3MouseClicked
 
-    private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
-        JFileChooser fc = new JFileChooser();
-        fc.showOpenDialog(this);
-        test_file = fc.getSelectedFile();
-        
-        String test_file_text = "", text_line = "";
-        
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+        // Abrir archivo
+        openFile();
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+        // Generar Lexer
         try {
-            if (test_file != null) {
-                BufferedReader reader = new BufferedReader(new FileReader(test_file));
-                
-                while ((text_line = reader.readLine()) != null)
-                    test_file_text += text_line + "\n";
-                
-                reader.close();
+            JFileChooser fc = new JFileChooser();
+            fc.setCurrentDirectory(new File("./src/VisualBasic/"));
+            int fc_value = fc.showOpenDialog(this);
+            if (fc_value == JFileChooser.APPROVE_OPTION) {
+                File lexer_file = fc.getSelectedFile();
+                generateLexer(lexer_file.getPath());
+                JOptionPane.showMessageDialog(null, "Se ha generado el lexer exitosamente", "Generar Lexer", JOptionPane.INFORMATION_MESSAGE);
             }
         } catch (Exception ex) {
-            test_file_text = "Error al abrir el archivo!";
+            JOptionPane.showMessageDialog(null, "Ha ocurrido un error al generar el lexer", "Generar Lexer", JOptionPane.ERROR_MESSAGE);
+            ta_output.setText(ex.getMessage());
         }
-        
-        ta_test_file_text.setText(test_file_text);
-        tf_test_file_name.setText(test_file.getPath());
-    }//GEN-LAST:event_jButton1MouseClicked
+    }//GEN-LAST:event_jMenuItem2ActionPerformed
 
-    private void jButton2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseClicked
+    private void btn_parse_fileMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btn_parse_fileMouseClicked
+        // Parsear archivo
         try {
-            BufferedWriter lexer_writer = new BufferedWriter(new FileWriter(lexer_file));
-            lexer_writer.write(ta_lexer_text.getText());
-            lexer_writer.close();
+//            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//            PrintStream ps = new PrintStream(baos);
+//            PrintStream old = System.out;
+//            System.setOut(ps);
+//            System.setErr(ps);
             
-            BufferedWriter test_writer = new BufferedWriter(new FileWriter(test_file));
-            test_writer.write(ta_test_file_text.getText());
-            test_writer.close();
             
-            generateLexer(lexer_file.getAbsolutePath());
+            parser p = new parser(new Lexer(new FileReader(current_source_file.getPath())));
+            Object result = p.parse().value;
+            System.out.println(result.toString());
             
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            PrintStream ps = new PrintStream(baos);
-            PrintStream old = System.out;
-            System.setOut(ps);            
+//            System.out.flush();
+//            System.setOut(old);
+//            System.setErr(old);
             
-            VisualBasicLexer lexer = new VisualBasicLexer(new BufferedReader(new FileReader(test_file.getAbsoluteFile())));
-            while (lexer.yylex() == 1);
-            
-            System.out.flush();
-            System.setOut(old);
-            ta_lexer_result.setText(baos.toString());
+//            ta_output.setText(baos.toString());
         } catch (Exception ex) {
         
-        }
-    }//GEN-LAST:event_jButton2MouseClicked
+        } 
+    }//GEN-LAST:event_btn_parse_fileMouseClicked
 
     /**
      * @param args the command line arguments
@@ -329,29 +270,69 @@ public class MainWindow extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
+    private javax.swing.JButton btn_generate_ast;
+    private javax.swing.JButton btn_parse_file;
     private javax.swing.JButton jButton3;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTextArea ta_lexer_result;
-    private javax.swing.JTextArea ta_lexer_text;
-    private javax.swing.JTextArea ta_test_file_text;
-    private javax.swing.JTextField tf_lexer_file_name;
-    private javax.swing.JTextField tf_test_file_name;
+    private javax.swing.JTextArea ta_output;
+    private javax.swing.JTextArea ta_source_code;
+    private javax.swing.JTextField tf_file_name;
     // End of variables declaration//GEN-END:variables
-    File lexer_file, test_file;
+    
+    private File current_source_file;
+    
+    private void openFile() {
+        try {
+            JFileChooser fc = new JFileChooser();
+            fc.setCurrentDirectory(new File("./src/VisualBasic/"));
+            int fc_value = fc.showOpenDialog(this);
+            
+            if (fc_value == JFileChooser.APPROVE_OPTION) {
+                
+                current_source_file = fc.getSelectedFile();
+                tf_file_name.setText(current_source_file.getPath());
+                showSourceFileText();
+                
+                btn_parse_file.setEnabled(true);
+                btn_generate_ast.setEnabled(true);
+            } else {
+                tf_file_name.setText("Ningun archivo seleccionado");
+                btn_parse_file.setEnabled(false);
+                btn_generate_ast.setEnabled(false);
+            }
+            
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Ha ocurrido un error al abrir el archivo", "Abrir archivo", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    private void showSourceFileText() {
+        try {
+            int line_number = 1;
+            String line = "";
+
+            BufferedReader buffer = new BufferedReader(new FileReader(current_source_file));
+            ta_source_code.setText("");
+            ta_source_code.setTabSize(4);
+            
+            while ((line = buffer.readLine()) != null) {
+                ta_source_code.append(line_number + "\t" + line + "\n");
+                line_number++;
+            }
+        } catch (Exception ex) {
+        }
+    }
     
     private void generateLexer(String path) {
-        File file = new File(path);
-        jflex.Main.generate(file);
+        jflex.Main.generate(new File(path));
     }
 }
