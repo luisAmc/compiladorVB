@@ -83,9 +83,9 @@
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Component id="tf_file_name" min="-2" pref="651" max="-2" attributes="0"/>
                           <EmptySpace max="32767" attributes="0"/>
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="btn_parse_file" alignment="1" min="-2" max="-2" attributes="0"/>
-                              <Component id="btn_generate_ast" alignment="1" min="-2" pref="121" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                              <Component id="btn_parse_file" max="32767" attributes="0"/>
+                              <Component id="btn_generate_ast" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                   </Group>

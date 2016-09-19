@@ -9,9 +9,12 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
 
 /**
  *
@@ -24,6 +27,7 @@ public class MainWindow extends javax.swing.JFrame {
      */
     public MainWindow() {
         initComponents();
+        setLocationRelativeTo(null);
     }
 
     /**
@@ -121,9 +125,9 @@ public class MainWindow extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(tf_file_name, javax.swing.GroupLayout.PREFERRED_SIZE, 651, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btn_parse_file, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(btn_generate_ast, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(btn_parse_file, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btn_generate_ast, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap(39, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -212,23 +216,28 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void btn_parse_fileMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btn_parse_fileMouseClicked
         // Parsear archivo
+        jTabbedPane1.setSelectedIndex(1);
+        ta_output.setText("");
         try {
+            PrintStream ps = new PrintStream(new OutputStream() {
+                @Override
+                public void write(int b) throws IOException {
+                    ta_output.append(String.valueOf((char)b));
+                    ta_output.setCaretPosition(ta_output.getDocument().getLength());
+                }
+                
+            });
 //            ByteArrayOutputStream baos = new ByteArrayOutputStream();
 //            PrintStream ps = new PrintStream(baos);
-//            PrintStream old = System.out;
-//            System.setOut(ps);
-//            System.setErr(ps);
-            
+//            PrintStream old = System.err;
+            System.setErr(ps);
+            System.setOut(ps);
             
             parser p = new parser(new Lexer(new FileReader(current_source_file.getPath())));
             Object result = p.parse().value;
-            System.out.println(result.toString());
             
-//            System.out.flush();
-//            System.setOut(old);
-//            System.setErr(old);
-            
-//            ta_output.setText(baos.toString());
+            if (ta_output.getText().length() == 0)
+                ta_output.setText("No ocurrieron errores.");
         } catch (Exception ex) {
         
         } 
@@ -291,9 +300,11 @@ public class MainWindow extends javax.swing.JFrame {
     private File current_source_file;
     
     private void openFile() {
+        jTabbedPane1.setSelectedIndex(0);
+        
         try {
             JFileChooser fc = new JFileChooser();
-            fc.setCurrentDirectory(new File("./src/VisualBasic/"));
+            fc.setCurrentDirectory(new File("./src/testcodes"));
             int fc_value = fc.showOpenDialog(this);
             
             if (fc_value == JFileChooser.APPROVE_OPTION) {
@@ -322,6 +333,7 @@ public class MainWindow extends javax.swing.JFrame {
 
             BufferedReader buffer = new BufferedReader(new FileReader(current_source_file));
             ta_source_code.setText("");
+            ta_output.setText("");
             ta_source_code.setTabSize(4);
             
             while ((line = buffer.readLine()) != null) {

@@ -30,7 +30,7 @@ import java_cup.runtime.*;
 %}
 
 /*Comandos de consola*/
-Write = "Console.Write"
+Write = "Console.Write"|"Console.WriteLine"
 Read = "Console.In"
 
 /*Tipos de datos*/
@@ -46,6 +46,7 @@ Dim				= "Dim"
 As				= "As"
 Public			= "Public"
 Private			= "Private"
+New 			= "New"
 
 /*Comandos de funcion*/
 Sub				= "Sub"
@@ -66,9 +67,10 @@ OpNot			= "Not"
 
 /*Operadores aritmeticos*/
 OpSuma			= "+"
-OpResta			= "/"
+OpResta			= "-"
 OpMult			= "*"
 OpDiv			= "/"
+OpPotencia		= "^"
 OpIgual 		= "="
 
 /*Estructuras de control*/
@@ -88,8 +90,9 @@ Until			= "Until"
 
 /*Otros*/
 Letra 			= [a-zA-Z]
+LetraS 			= [a-zA-Z_-]
 Digito			= [0-9]
-Id = {Letra}({Letra}|{Digito})*
+Id 				= {Letra}({Letra}|{Digito}|{LetraS})* 
 FinDeLinea		= [\r|\n|\r\n]+
 EspacioBlanco	= [ \t\f]
 Comentario 		= "\'"
@@ -101,10 +104,12 @@ ParIzq			= "("
 ParDer			= ")"
 
 /*Valores literales*/
-Numero = {Digito}+
-Decimal = {Digito}+"."{Digito}+
-Bool = "True"|"False"
-Caracter = {Letra}
+Numero 			= {Digito}+
+Decimal 		= {Digito}+"."{Digito}+
+True			= "True"
+False			= "False"
+Bool 			= {True}|{False}
+Caracter 		= {Letra}
 
 %%
 <YYINITIAL>{
@@ -125,6 +130,7 @@ Caracter = {Letra}
 	{As}				{return symbol(sym.AS);}
 	{Public}			{return symbol(sym.PUBLIC);}
 	{Private}			{return symbol(sym.PRIVATE);}
+	{New}				{return symbol(sym.NEW);}
 
 	/*Comandos de funcion*/
 	{Sub}				{return symbol(sym.SUB);}
@@ -148,6 +154,7 @@ Caracter = {Letra}
 	{OpResta}			{return symbol(sym.OP_RESTA);}
 	{OpMult}			{return symbol(sym.OP_MULTIPLICACION);}
 	{OpDiv}				{return symbol(sym.OP_DIVISION);}
+	{OpPotencia}		{return symbol(sym.OP_POTENCIA);}
 
 	{OpIgual} 			{return symbol(sym.OP_IGUAL);}
 
@@ -176,7 +183,8 @@ Caracter = {Letra}
 	{Id}				{return symbol(sym.IDENTIFICADOR, yytext());}
 	{Numero} 			{return symbol(sym.ENTERO_LITERAL, new Integer(Integer.parseInt(yytext())));}
 	{Decimal} 			{return symbol(sym.REAL_LITERAL, new Double(Double.parseDouble(yytext())));}
-	{Bool} 				{return symbol(sym.BOOLEAN_LITERAL, new Boolean(Boolean.parseBoolean(yytext())));}
+	"True"				{return symbol(sym.TRUE_LITERAL);}
+	"False"				{return symbol(sym.FALSE_LITERAL);}
 	{Caracter} 			{return symbol(sym.CARACTER_LITERAL, yytext().charAt(1));}
 	{FinDeLinea}		{return symbol(sym.FIN_LINEA);}	
 	{EspacioBlanco}		{/*Espacio blanco*/}
