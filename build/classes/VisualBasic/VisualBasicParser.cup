@@ -143,56 +143,56 @@ precedence left OP_SUMA, OP_RESTA;
 precedence left OP_POTENCIA, OP_MULTIPLICACION, OP_DIVISION;
 precedence left OP_MENOR_QUE, OP_MENOR_IGUAL_QUE, OP_MAYOR_QUE, OP_MAYOR_IGUAL_QUE, OP_IGUAL;
 
-inicio_programa						::=	fin_linea sentencias_principales
-										| sentencias_principales
+inicio_programa						::=	fin_linea sentencias_principales {: RESULT = new NodoPrincipal(sentencias_principales); :}
+										| sentencias_principales {: RESULT = new NodoPrincipal(sentencias_principales); :}
 										| ;
 
-sentencias_principales				::=	sentencia_principal
-										| sentencias_principales fin_linea sentencia_principal;
+sentencias_principales				::=	sentencia_principal {: RESULT = new NodoHijoPrincipal(sentencia_principal); :}
+										| sentencias_principales fin_linea sentencia_principal; {: RESULT = new NodoHijoPrincipal(sentencia_principal); :}
 
-sentencia_principal 				::=	declaracion_variables
-										| declaracion_sub
-										| declaracion_funcion
-										| declaracion_type;
+sentencia_principal 				::=	declaracion_variables {: RESULT = new NodoDeclaracion(declaracion_variables); :}
+										| declaracion_sub {: RESULT = new NodoDeclaracion(declaracion_sub); :}
+										| declaracion_funcion {: RESULT = new NodoDeclaracion(declaracion_funcion); :}
+										| declaracion_type; {: RESULT = new NodoDeclaracion(declaracion_type); :}
 
 /*TODO: Gramatica para Dim a, b, c As Integer*/
-declaracion_variables				::=	visibilidad DIM lista_variables AS tipo_dato
+declaracion_variables				::=	visibilidad DIM lista_variables AS tipo_dato {: RESULT = new NodoDeclaracionHijo( visibilidad ,lista_variables, tipo_dato); :}
 										| visibilidad DIM error {:parser.report_error("declaracion_variables: Se esperaba IDENTIFICADOR", "\t");:} AS tipo_dato
 										| visibilidad DIM lista_variables error {:parser.report_error("declaracion_variables: Se esperaba AS", "\t");:} tipo_dato
-										| visibilidad DIM lista_variables AS NEW llamado_funcion;
+										| visibilidad DIM lista_variables AS NEW llamado_funcion {: RESULT = new NodoDeclaracionHijo( visibilidad ,lista_variables, llamado_funcion); :};
 										
-declaracion_sub						::=	visibilidad SUB IDENTIFICADOR parametros fin_linea cuerpo_funcion END SUB
+declaracion_sub						::=	visibilidad SUB IDENTIFICADOR parametros fin_linea cuerpo_funcion END SUB {: RESULT = new NodoDeclaracionHijo( visibilidad, parametros, cuerpo_funcion); :}
 										| visibilidad SUB error{:parser.report_error("declaracion_sub: Se esperaba IDENTIFICADOR", "\t");:} parametros fin_linea cuerpo_funcion END SUB
 										| visibilidad SUB IDENTIFICADOR parametros fin_linea cuerpo_funcion error{:parser.report_error("declaracion_sub: Se esperaba END", "\t");:} SUB
 										| visibilidad SUB IDENTIFICADOR parametros fin_linea cuerpo_funcion END error{:parser.report_error("declaracion_sub: Se esperaba SUB", "\t");:};
 
-declaracion_funcion					::=	visibilidad FUNCTION IDENTIFICADOR parametros fin_linea cuerpo_funcion END FUNCTION
+declaracion_funcion					::=	visibilidad FUNCTION IDENTIFICADOR parametros fin_linea cuerpo_funcion END FUNCTION {: RESULT = new NodoDeclaracionHijo( visibilidad ,parametros, tipo_dato); :}
 										| visibilidad FUNCTION error{:parser.report_error("declaracion_funcion: Se esperaba IDENTIFICADOR", "\t");:} parametros fin_linea cuerpo_funcion END FUNCTION
 										| visibilidad FUNCTION IDENTIFICADOR parametros error{:parser.report_error("declaracion_funcion: Se esperaba AS", "\t");:} tipo_dato fin_linea cuerpo_funcion END FUNCTION
 										| visibilidad FUNCTION IDENTIFICADOR parametros fin_linea cuerpo_funcion error{:parser.report_error("declaracion_funcion: Se esperaba END", "\t");:} FUNCTION
 										| visibilidad FUNCTION IDENTIFICADOR parametros fin_linea cuerpo_funcion END error{:parser.report_error("declaracion_funcion: Se esperaba FUNCTION", "\t");:};
 
-declaracion_type					::=	visibilidad TYPE IDENTIFICADOR fin_linea cuerpo_nuevo_tipo END TYPE
+declaracion_type					::=	visibilidad TYPE IDENTIFICADOR fin_linea cuerpo_nuevo_tipo END TYPE {: RESULT = new NodoDeclaracionHijo(visibilidad, cuerpo_nuevo_tipo);                                     
 										| visibilidad TYPE error{:parser.report_error("declaracion_type: Se esperaba IDENTIFICADOR", "\t");:} fin_linea cuerpo_nuevo_tipo END TYPE
 										| visibilidad TYPE IDENTIFICADOR fin_linea cuerpo_nuevo_tipo error{:parser.report_error("declaracion_type: Se esperaba END", "\t");:} TYPE
 										| visibilidad TYPE IDENTIFICADOR fin_linea cuerpo_nuevo_tipo END error{:parser.report_error("declaracion_type: Se esperaba TYPE", "\t");:};
 
-cuerpo_funcion						::=	sentencias_cuerpo_funcion
+cuerpo_funcion						::=	sentencias_cuerpo_funcion {: RESULT = new NodoCuerpoFuncion(sentencias_cuerpo_funcion); :}
 										| ;
 
-sentencias_cuerpo_funcion			::=	sentencia_cuerpo_funcion 
-										| sentencias_cuerpo_funcion sentencia_cuerpo_funcion;
+sentencias_cuerpo_funcion			::=	sentencia_cuerpo_funcion {: RESULT = new NodoCuerpoFuncionHijo(sentencia_cuerpo_funcion); :}
+										| sentencias_cuerpo_funcion sentencia_cuerpo_funcion; {: RESULT = new NodoCuerpoFuncionHijo(sentencia_cuerpo_funcion); :}
 
-sentencia_cuerpo_funcion 			::=	propiedad argumentos fin_linea
-										| declaracion_variables fin_linea
-										| sentencia_for_step fin_linea
-										| sentencia_do_while fin_linea
-										| sentencia_if fin_linea
-										| sentencia_consola fin_linea
-										| sentencia_llamado_funcion fin_linea
-										| sentencia_asignacion fin_linea;
+sentencia_cuerpo_funcion 			::=	propiedad argumentos fin_linea {:RESULT = new NodoSentencia(propiedad, argumentos);:}
+										| declaracion_variables fin_linea {:RESULT = new NodoSentencia(declaracion_variables);:}
+										| sentencia_for_step fin_linea {:RESULT = new NodoSentencia(sentencia_for_step);:}
+										| sentencia_do_while fin_linea {:RESULT = new NodoSentencia(sentencia_do_while);:}
+										| sentencia_if fin_linea {:RESULT = new NodoSentencia(sentencia_if);:}
+										| sentencia_consola fin_linea {:RESULT = new NodoSentencia(sentencia_consola);:}
+										| sentencia_llamado_funcion fin_linea {:RESULT = new NodoSentencia(sentencia_llamado_funcion);:}
+										| sentencia_asignacion fin_linea; {:RESULT = new NodoSentencia(sentencia_asignacion);:}
 
-sentencia_for_step					::=	FOR IDENTIFICADOR OP_IGUAL expresion TO expresion STEP tipos_step fin_linea cuerpo_funcion NEXT IDENTIFICADOR
+sentencia_for_step					::=	FOR IDENTIFICADOR OP_IGUAL expresion:e1 TO expresion:e2 STEP tipos_step fin_linea cuerpo_funcion NEXT IDENTIFICADOR {: RESULT = new NodoSentenciaHijo( e1, e2, cuerpo_funcion); :}
 										| FOR error{:parser.report_error("sentencia_for_step: Se esperaba IDENTIFICADOR", "\t");:} OP_IGUAL expresion TO expresion STEP tipos_step fin_linea cuerpo_funcion NEXT IDENTIFICADOR
 										| FOR IDENTIFICADOR error{:parser.report_error("sentencia_for_step: Se esperaba OP_IGUAL", "\t");:} expresion TO expresion STEP tipos_step fin_linea cuerpo_funcion NEXT IDENTIFICADOR
 										| FOR IDENTIFICADOR OP_IGUAL expresion error{:parser.report_error("sentencia_for_step: Se esperaba TO", "\t");:} expresion STEP tipos_step fin_linea cuerpo_funcion NEXT IDENTIFICADOR
@@ -202,139 +202,150 @@ sentencia_for_step					::=	FOR IDENTIFICADOR OP_IGUAL expresion TO expresion STE
 										| FOR IDENTIFICADOR OP_IGUAL expresion TO expresion STEP tipos_step fin_linea cuerpo_funcion NEXT error{:parser.report_error("sentencia_for_step: Se esperaba IDENTIFICADOR", "\t");:};
 
 /*TODO: Agregar DO LOOP UNTIL expresion*/
-sentencia_do_while					::=	DO WHILE expresion fin_linea cuerpo_funcion LOOP
+sentencia_do_while					::=	DO WHILE expresion fin_linea cuerpo_funcion LOOP {: RESULT = new NodoSentenciaHijo( expresion, cuerpo_funcion); :}
 										| DO error{:parser.report_error("sentencia_do_while: Se esperaba WHILE", "\t");:} expresion fin_linea cuerpo_funcion LOOP
 										| DO WHILE expresion fin_linea cuerpo_funcion error{:parser.report_error("sentencia_do_while: Se esperaba LOOP", "\t");:};
 
-sentencia_if 						::=	IF expresion THEN fin_linea cuerpo_funcion sentencia_else_if sentencia_else END IF
+sentencia_if 						::=	IF expresion THEN fin_linea cuerpo_funcion sentencia_else_if sentencia_else END IF {: RESULT = new NodoSentenciaHijo( expresion, cuerpo_funcion); :}
 										| IF expresion error{:parser.report_error("sentencia_if: Se esperaba THEN", "\t");:} fin_linea cuerpo_funcion sentencia_else_if sentencia_else END IF
 										| IF expresion THEN fin_linea cuerpo_funcion sentencia_else_if sentencia_else error{:parser.report_error("sentencia_if: Se esperaba END", "\t");:} IF
 										| IF expresion THEN fin_linea cuerpo_funcion sentencia_else_if sentencia_else_if END error{:parser.report_error("sentencia_if: Se esperaba IF", "\t");:}
-										| IF expresion THEN fin_linea cuerpo_funcion END IF
-										| IF expresion THEN fin_linea cuerpo_funcion sentencia_else END IF;
+										| IF expresion THEN fin_linea cuerpo_funcion END IF {: RESULT = new NodoSentenciaHijo( expresion, cuerpo_funcion); :}
+										| IF expresion THEN fin_linea cuerpo_funcion sentencia_else END IF; {: RESULT = new NodoSentenciaHijo( expresion, cuerpo_funcion); :}
 
-sentencia_else_if					::=	ELSE_IF expresion THEN fin_linea cuerpo_funcion sentencia_else_if
+sentencia_else_if					::=	ELSE_IF expresion THEN fin_linea cuerpo_funcion sentencia_else_if {: RESULT = new NodoSentenciaHijo( expresion, cuerpo_funcion); :}
 										| ELSE_IF expresion error{:parser.report_error("sentencia_else_if: Se esperaba THEN", "\t");:} fin_linea cuerpo_funcion sentencia_else_if
 										| ELSE_IF expresion THEN fin_linea cuerpo_funcion error{:parser.report_error("sentencia_else_if: Se esperaba sentencia_else_if", "\t");:}/*
 										| */;
 
-sentencia_else 						::=	ELSE fin_linea cuerpo_funcion/*
+sentencia_else 						::=	ELSE fin_linea cuerpo_funcion/* {: RESULT = new NodoSentenciaHijo(cuerpo_funcion); :}
 										| */;
 
-sentencia_consola					::=	WRITE PAR_IZQ termino PAR_DER
+sentencia_consola					::=	WRITE PAR_IZQ termino PAR_DER {: RESULT = new NodoSentenciaHijo(termino); :}
 										| WRITE error{:parser.report_error("sentencia_consola WRITE: Se esperaba \"(\"", "\t");:} PAR_DER
 										| WRITE PAR_IZQ termino error{:parser.report_error("sentencia_consola WRITE: Se esperaba \")\"", "\t");:}
-										| READ PAR_IZQ termino PAR_DER
+										| READ PAR_IZQ termino PAR_DER {: RESULT = new NodoSentenciaHijo(termino); :}
 										| READ error{:parser.report_error("sentencia_consola READ: Se esperaba \"(\"", "\t");:} termino PAR_DER
 										| READ PAR_IZQ termino error{:parser.report_error("sentencia_consola READ: Se esperaba \")\"", "\t");:};
 
-cuerpo_nuevo_tipo					::=	sentencias_cuerpo_nuevo_tipo
+cuerpo_nuevo_tipo					::=	sentencias_cuerpo_nuevo_tipo {: RESULT = new NodoCuerpoFuncion(sentencias_cuerpo_nuevo_tipo); :}
 										| ;
 
-sentencias_cuerpo_nuevo_tipo		::=	declaracion_variables_nuevo_tipo fin_linea
-										| sentencias_cuerpo_nuevo_tipo declaracion_variables_nuevo_tipo;
+sentencias_cuerpo_nuevo_tipo		::=	declaracion_variables_nuevo_tipo fin_linea {:RESULT = new NodoSentencia(declaracion_variables_nuevo_tipo);:}
+										| sentencias_cuerpo_nuevo_tipo declaracion_variables_nuevo_tipo; {:RESULT = new NodoSentencia(declaracion_variables_nuevo_tipo);:}
 
-declaracion_variables_nuevo_tipo	::=	IDENTIFICADOR AS tipo_dato;
+declaracion_variables_nuevo_tipo	::=	IDENTIFICADOR AS tipo_dato {: RESULT = new NodoDeclaracionHijo(tipo_dato); :}
+                                               ;
 
-parametros							::=	PAR_IZQ PAR_DER
+parametros							::=	PAR_IZQ PAR_DER {: RESULT = new NodoParametros(); :}
 										| PAR_IZQ error{:parser.report_error("parametros: Se esperaba \")\"", "\t");:}
-										| PAR_IZQ lista_parametros PAR_DER
+										| PAR_IZQ lista_parametros PAR_DER {: RESULT = new NodoParametros(lista_parametros); :}
 										| PAR_IZQ lista_parametros error{:parser.report_error("parametros: Se esperaba \")\"", "\t");:};
 
-lista_parametros					::=	IDENTIFICADOR AS tipo_dato
-										| forma_de_paso IDENTIFICADOR AS tipo_dato
+lista_parametros					::=	IDENTIFICADOR AS tipo_dato {: RESULT = new NodoParametrosHijos(tipo_dato); :}
+										| forma_de_paso IDENTIFICADOR AS tipo_dato {: RESULT = new NodoParametrosHijos(forma_de_paso, tipo_dato); :}
 										| forma_de_paso error{:parser.report_error("lista_parametros: Se esperaba IDENTIFICADOR", "\t");:} AS tipo_dato
 										| forma_de_paso IDENTIFICADOR error{:parser.report_error("lista_parametros: Se esperaba AS", "\t");:} tipo_dato
-										| lista_parametros COMA forma_de_paso IDENTIFICADOR AS tipo_dato
+										| lista_parametros COMA forma_de_paso IDENTIFICADOR AS tipo_dato {: RESULT = new NodoParametrosHijos(lista_parametros ,forma_de_paso, tipo_dato); :}
 										| lista_parametros error{:parser.report_error("lista_parametros: Se esperaba COMA", "\t");:} forma_de_paso IDENTIFICADOR AS tipo_dato
 										| lista_parametros COMA forma_de_paso error{:parser.report_error("lista_parametros: Se esperaba IDENTIFICADOR", "\t");:} AS tipo_dato
 										| lista_parametros COMA forma_de_paso IDENTIFICADOR error{:parser.report_error("lista_parametros: Se esperaba AS", "\t");:} tipo_dato;
 
-forma_de_paso 						::=	BYVAL
-										| BYREF;
+forma_de_paso 						::=	BYVAL {: RESULT = new NodoLiteral(BYVAL); :}
+										| BYREF {: RESULT = new NodoLiteral(BYVAL); :};
 
-sentencia_asignacion				::=	receptor_asignacion OP_IGUAL expresion
-										| expresion OP_IGUAL expresion;
+sentencia_asignacion				::=	receptor_asignacion OP_IGUAL expresion {: RESULT = new NodoAsignacion(receptor_asignacion, expresion); :}
+										| expresion:e1 OP_IGUAL expresion:e2 {: RESULT = new NodoAsignacion(e1, e2); :}
+                                                                                 ;
 
-receptor_asignacion					::=	IDENTIFICADOR
-										| propiedad;
+receptor_asignacion					::=	IDENTIFICADOR {: RESULT = new NodoAsignacionHijo(IDENTIFICADOR); :}
+										| propiedad {: RESULT = new NodoAsignacionHijo(propiedad); :};
 
-sentencia_llamado_funcion			::=	CALL llamado_funcion
+sentencia_llamado_funcion			::=	CALL llamado_funcion {: RESULT = new NodoLlamadoFuncion(llamado_funcion); :}
 										| CALL error{:parser.report_error("Sentencia llamado funcion: Se esperaba el llamado a la funcion", "\t");:};
 
-llamado_funcion 					::=	IDENTIFICADOR argumentos;
+llamado_funcion 					::=	IDENTIFICADOR argumentos {: RESULT = new NodoLlamadoFuncionHijo(argumento); :}
+                                                        ;
 
-argumentos							::=	PAR_IZQ PAR_DER
+argumentos							::=	PAR_IZQ PAR_DER {: RESULT = new NodoArgumento(); :}
 										| PAR_IZQ error{:parser.report_error("Argumentos: Se esperaba \")\"", "\t");:}
-										| PAR_IZQ lista_argumentos PAR_DER
+										| PAR_IZQ lista_argumentos PAR_DER {: RESULT = new NodoArgumento(lista_argumentos); :}
 										| PAR_IZQ lista_argumentos error{:parser.report_error("Argumentos: Se esperaba \")\"", "\t");:};
 
-lista_argumentos					::=	expresion
-										| expresion COMA lista_argumentos;
+lista_argumentos					::=	expresion {: RESULT = new NodoArgumentoHijo(expresion); :}
+										| expresion COMA lista_argumentos {: RESULT = new NodoArgumentoHijo(expresion, lista_argumentos); :}
+                                                                                ;
 
-expresion							::=	expresion operador_aritmetico expresion
-										| expresion operador_relacional expresion
-										| expresion operador_logico expresion
-										| PAR_IZQ expresion PAR_DER
-										| OP_NOT expresion
-										| operador_negacion expresion
-										| termino;
+expresion							::=	expresion operador_aritmetico expresion {: RESULT = new NodoExpresionPadre(expresion, operador_aritmetico, expresion); :}
+										| expresion operador_relacional expresion {: RESULT = new NodoExpresionPadre(expresion, operador_relacional, expresion);
+										| expresion operador_logico expresion {: RESULT = new NodoExpresionPadre(expresion, operador_logico, expresion);
+										| PAR_IZQ expresion PAR_DER {: RESULT = new NodoExpresionPadre(expresion);
+										| OP_NOT expresion {: RESULT = new NodoExpresionPadre(expresion);
+										| operador_negacion expresion {: RESULT = new NodoExpresionPadre(operador_negacion, expresion);
+										| termino; {: RESULT = new NodoExpresionPadre(termino);
 
-operador_aritmetico					::=	operador_aritmetico_suma
-										| operador_aritmetico_multiplicacion;
+operador_aritmetico					::=	operador_aritmetico_suma {: RESULT = new NodoOperadorAritmetico(operador_aritmetico_suma); :}
+										| operador_aritmetico_multiplicacion {: RESULT = new NodoOperadorAritmetico(operador_aritmetico_multiplicacion); :}
+                                                                                ;
 
-operador_aritmetico_suma			::=	OP_SUMA
-										| OP_RESTA;
+operador_aritmetico_suma			::=	OP_SUMA {: RESULT = new NodoLiteral(OP_SUMA); :}
+										| OP_RESTA {: RESULT = new NodoLiteral(OP_RESTA); :}
+                                                                                ;
 
-operador_aritmetico_multiplicacion	::=	OP_POTENCIA
-										| OP_MULTIPLICACION
-										| OP_DIVISION;
+operador_aritmetico_multiplicacion	::=	OP_POTENCIA {: RESULT = new NodoLiteral(OP_POTENCIA); :}
+										| OP_MULTIPLICACION {: RESULT = new NodoLiteral(OP_MULTIPLICACION); :}
+										| OP_DIVISION {: RESULT = new NodoLiteral(OP_DIVISION); :}
+                                                                                ;
 
-operador_relacional					::=	OP_MAYOR_QUE
-										| OP_MENOR_QUE
-										| OP_MAYOR_IGUAL_QUE
-										| OP_MENOR_IGUAL_QUE
-										| operador_distinto;
+operador_relacional					::=	OP_MAYOR_QUE {: RESULT = new NodoLiteral(OP_MAYOR_QUE); :}
+										| OP_MENOR_QUE {: RESULT = new NodoLiteral(OP_MENOR_QUE); :}
+										| OP_MAYOR_IGUAL_QUE {: RESULT = new NodoLiteral(OP_MAYOR_IGUAL_QUE); :}
+										| OP_MENOR_IGUAL_QUE {: RESULT = new NodoLiteral(OP_MENOR_IGUAL_QUE); :}
+										| operador_distinto {: RESULT = new NodoOperadorDistinto(operador_distinto); :}
+                                                                                ; 
 
-operador_logico						::=	OP_AND
-										| OP_OR;
+operador_logico						::=	OP_AND {: RESULT = new NodoLiteral(OP_AND); :}
+										| OP_OR {: RESULT = new NodoLiteral(OP_OR); :}
+                                                                                ;
 
-operador_negacion					::=	OP_RESTA;
+operador_negacion					::=	OP_RESTA {: RESULT = new NodoLiteral(OP_RESTA); :}
+                                                             ;
 
-operador_distinto					::=	OP_MENOR_QUE OP_MAYOR_QUE
+operador_distinto					::=	OP_MENOR_QUE OP_MAYOR_QUE {: RESULT = new NodoLiteral(OP_MENOR_QUE, OP_MAYOR_QUE); :}
 										| OP_MENOR_QUE error{:parser.report_error("operador_distinto: Se esperaba OP_MAYOR_QUE", "\t");:};
 
-propiedad							::=	IDENTIFICADOR cadena_propiedades;
+propiedad							::=	IDENTIFICADOR cadena_propiedades {: RESULT = new NodoPropiedad(cadena_propiedades); :}
+                                                                        ;
 
-cadena_propiedades					::=	PUNTO IDENTIFICADOR
-										| PUNTO IDENTIFICADOR cadena_propiedades;
+cadena_propiedades					::=	PUNTO IDENTIFICADOR = {: RESULT = new NodoLiteral(PUNTO, IDENTIFICADOR); :}
+										| PUNTO IDENTIFICADOR cadena_propiedades {: RESULT = new NodoPropiedad(cadena_propiedades); :};
 
-fin_linea 							::=	FIN_LINEA fin_linea
+fin_linea 							::=	FIN_LINEA fin_linea {: RESULT = new NodoFinLinea(fin_linea); :}
 										| FIN_LINEA;
 
 termino								::=	receptor_asignacion
-										| ENTERO_LITERAL
-										| REAL_LITERAL
-										| CARACTER_LITERAL
-										| CADENA_LITERAL
-										| TRUE_LITERAL
-										| FALSE_LITERAL
+										| ENTERO_LITERAL {: RESULT = new NodoLiteral(ENTERO_LITERAL);}
+										| REAL_LITERAL {: RESULT = new NodoLiteral(REAL_LITERAL);}
+										| CARACTER_LITERAL {: RESULT = new NodoLiteral(CARACTER_LITERAL);}
+										| CADENA_LITERAL {: RESULT = new NodoLiteral(CADENA_LITERAL);}
+										| TRUE_LITERAL {: RESULT = new NodoLiteral(TRUE_LITERAL);}
+										| FALSE_LITERAL {: RESULT = new NodoLiteral(FALSE_LITERAL);}
 										| llamado_funcion;
 
-tipo_dato							::=	ENTERO
-										| REAL
-										| CADENA
-										| CARACTER
-										| BOOLEAN
-										| IDENTIFICADOR /*Puede ser un nuevo tipo de dato*/;
+tipo_dato							::=	ENTERO {: RESULT = new NodoLiteral(ENTERO); :}
+										| REAL {: RESULT = new NodoLiteral(REAL); :}
+										| CADENA {: RESULT = new NodoLiteral(CADENA); :}
+										| CARACTER {: RESULT = new NodoLiteral(CARACTER); :}
+										| BOOLEAN {: RESULT = new NodoLiteral(BOOLEAN); :}
+										| IDENTIFICADOR  {: RESULT = new NodoLiteral(IDENTIFICADOR); :}/*Puede ser un nuevo tipo de dato*/;
 
-visibilidad							::=	PUBLIC
-										| PRIVATE
+visibilidad							::=	PUBLIC {: RESULT = new NodoLiteral(PUBLIC); :}
+										| PRIVATE {: RESULT = new NodoLiteral(PRIVATE); :}
 										| ;
 
-lista_variables						::= IDENTIFICADOR
-										| IDENTIFICADOR COMA lista_variables
+lista_variables						::= IDENTIFICADOR {: RESULT = new NodoLiteral(IDENTIFICADOR); :}
+										| IDENTIFICADOR COMA lista_variables {: RESULT = new NodoAsignacion(IDENTIFICADOR, lista_variables); :}
 										| IDENTIFICADOR COMA error{:parser.report_error("lista_variables: Se esperaba lista_variables", "\t");:};
 
-tipos_step						::= ENTERO_LITERAL
-										| REAL_LITERAL;
+tipos_step						::= ENTERO_LITERAL {: RESULT = new NodoLiteral(ENTERO_LITERAL); :}
+										| REAL_LITERAL {: RESULT = new NodoLiteral(REAL_LITERAL); :}

@@ -21,7 +21,7 @@ import javax.swing.JTextArea;
  * @author Luis Martínez
  */
 public class MainWindow extends javax.swing.JFrame {
-
+    
     /**
      * Creates new form MainWindow
      */
