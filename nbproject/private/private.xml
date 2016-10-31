@@ -3,7 +3,16 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Luis%20Martínez/Documents/NetBeansProjects/ProyectoCompiladoresI/src/VisualBasic/Main.java</file>
+            <file>file:/C:/Users/Luis%20Martínez/Desktop/Lu's/unitec/compi/proyecto/compiladorVB/src/symbolTable/DoubleType.java</file>
+            <file>file:/C:/Users/Luis%20Martínez/Desktop/Lu's/unitec/compi/proyecto/compiladorVB/src/symbolTable/FunctionType.java</file>
+            <file>file:/C:/Users/Luis%20Martínez/Desktop/Lu's/unitec/compi/proyecto/compiladorVB/src/symbolTable/CharacterType.java</file>
+            <file>file:/C:/Users/Luis%20Martínez/Desktop/Lu's/unitec/compi/proyecto/compiladorVB/src/symbolTable/IntegerType.java</file>
+            <file>file:/C:/Users/Luis%20Martínez/Desktop/Lu's/unitec/compi/proyecto/compiladorVB/src/symbolTable/TypeWidths.java</file>
+            <file>file:/C:/Users/Luis%20Martínez/Desktop/Lu's/unitec/compi/proyecto/compiladorVB/src/VisualBasic/VisualBasicParser.cup</file>
+            <file>file:/C:/Users/Luis%20Martínez/Desktop/Lu's/unitec/compi/proyecto/compiladorVB/src/symbolTable/BooleanType.java</file>
+            <file>file:/C:/Users/Luis%20Martínez/Desktop/Lu's/unitec/compi/proyecto/compiladorVB/src/symbolTable/Type.java</file>
+            <file>file:/C:/Users/Luis%20Martínez/Desktop/Lu's/unitec/compi/proyecto/compiladorVB/src/abstractSyntaxTree/AST.java</file>
+            <file>file:/C:/Users/Luis%20Martínez/Desktop/Lu's/unitec/compi/proyecto/compiladorVB/src/symbolTable/PrimitiveType.java</file>
         </group>
     </open-files>
 </project-private>
