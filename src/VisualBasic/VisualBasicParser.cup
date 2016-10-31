@@ -3,6 +3,11 @@ package VisualBasic;
 import java_cup.runtime.*;
 import java.io.File;
 import java.util.List;
+import abstractSyntaxTree.AST;
+
+action code{:
+	AST ast = new AST();
+:}
 
 parser code {:
 	@Override
@@ -92,50 +97,51 @@ terminal Boolean TRUE_LITERAL, FALSE_LITERAL;
 terminal TYPE_LITERAL;
 
 /*No terminales*/
-non terminal inicio_programa;
-non terminal sentencias_principales; 
-non terminal sentencia_principal; 
-non terminal declaracion_variables; 
-non terminal declaracion_sub; 
-non terminal declaracion_funcion;
-non terminal declaracion_type;
-non terminal cuerpo_funcion; 
-non terminal sentencias_cuerpo_funcion; 
-non terminal sentencia_cuerpo_funcion; 
-non terminal sentencia_for_step; 
-non terminal sentencia_do_while; 
-non terminal sentencia_if;
-non terminal sentencia_else_if;
-non terminal sentencia_else; 
-non terminal sentencia_consola; 
-non terminal cuerpo_nuevo_tipo; 
-non terminal sentencias_cuerpo_nuevo_tipo; 
-non terminal declaracion_variables_nuevo_tipo;
-non terminal parametros;
-non terminal lista_parametros; 
-non terminal forma_de_paso; 
-non terminal sentencia_asignacion; 
-non terminal receptor_asignacion; 
-non terminal sentencia_llamado_funcion; 
-non terminal llamado_funcion;
-non terminal argumentos;
-non terminal lista_argumentos; 
-non terminal expresion; 
-non terminal operador_aritmetico; 
-non terminal operador_aritmetico_suma; 
-non terminal operador_aritmetico_multiplicacion; 
-non terminal operador_logico;
-non terminal operador_relacional;
-non terminal operador_negacion; 
-non terminal operador_distinto; 
-non terminal propiedad; 
-non terminal cadena_propiedades; 
+non terminal AST.Programa inicio_programa;
+non terminal AST.SentenciasPrincipales sentencias_principales; 
+non terminal AST.SentenciaPrincipal sentencia_principal; 
+non terminal AST.DeclaracionVariables declaracion_variables; 
+non terminal AST.DeclaracionSub declaracion_sub; 
+non terminal AST.DeclaracionFuncion declaracion_funcion;
+non terminal AST.DeclaracionType declaracion_type;
+non terminal AST.CuerpoFuncion cuerpo_funcion; 
+non terminal AST.SentenciasCuerpoFuncion sentencias_cuerpo_funcion; 
+non terminal AST.SentenciaCuerpoFuncion sentencia_cuerpo_funcion; 
+non terminal AST.SentenciaForStep sentencia_for_step; 
+non terminal AST.SentenciaDoWhile sentencia_do_while; 
+non terminal AST.SentenciaIf sentencia_if;
+non terminal AST.SentenciasElseIf sentencias_else_if;
+non terminal AST.SentenciaElseIf sentencia_else_if;
+non terminal AST.SentenciaElse sentencia_else; 
+non terminal AST.SentenciaConsola sentencia_consola; 
+non terminal AST.CuerpoNuevoTipo cuerpo_nuevo_tipo; 
+non terminal AST.SentenciasCuerpoNuevoTipo sentencias_cuerpo_nuevo_tipo; 
+non terminal AST.DeclaracionVariablesNuevoTipo declaracion_variables_nuevo_tipo;
+non terminal AST.Parametros parametros;
+non terminal AST.ListaParametros lista_parametros; 
+non terminal AST.FormaPaso forma_de_paso; 
+non terminal AST.SentenciaAsignacion sentencia_asignacion; 
+non terminal AST.ReceptorAsignacion receptor_asignacion; 
+non terminal AST.SentenciaLlamadoFuncion sentencia_llamado_funcion; 
+non terminal AST.LlamadoFuncion llamado_funcion;
+non terminal AST.Argumentos argumentos;
+non terminal AST.ListaArgumentos lista_argumentos; 
+non terminal AST.Expresion expresion; 
+non terminal String operador_aritmetico; 
+non terminal String operador_aritmetico_suma; 
+non terminal String operador_aritmetico_multiplicacion; 
+non terminal String operador_logico;
+non terminal String operador_relacional;
+non terminal String operador_negacion; 
+non terminal String operador_distinto; 
+non terminal AST.Propiedad propiedad; 
+non terminal AST.CadenaPropiedades cadena_propiedades; 
 non terminal fin_linea; 
-non terminal termino; 
-non terminal tipo_dato;
-non terminal visibilidad;
-non terminal lista_variables;
-non terminal tipos_step;
+non terminal AST.Termino termino; 
+non terminal AST.TipoDato tipo_dato;
+non terminal AST.Visibilidad visibilidad;
+// non terminal AST.ListaVariables lista_variables;
+non terminal String tipos_step;
 
 precedence left OP_OR;
 precedence left OP_AND;
@@ -143,56 +149,112 @@ precedence left OP_SUMA, OP_RESTA;
 precedence left OP_POTENCIA, OP_MULTIPLICACION, OP_DIVISION;
 precedence left OP_MENOR_QUE, OP_MENOR_IGUAL_QUE, OP_MAYOR_QUE, OP_MAYOR_IGUAL_QUE, OP_IGUAL;
 
-inicio_programa						::=	fin_linea sentencias_principales
-										| sentencias_principales
+inicio_programa						::=	fin_linea sentencias_principales:sp
+										{:	RESULT = ast.new Programa(sp);:}
+
+										| sentencias_principales:sp
+										{:	RESULT = ast.new Programa(sp);:}
+
 										| ;
 
-sentencias_principales				::=	sentencia_principal
-										| sentencias_principales fin_linea sentencia_principal;
+sentencias_principales				::=	sentencia_principal:sp
+										{:	RESULT = ast.new SentenciasPrincipales();
+											RESULT.add(sp);:}
 
-sentencia_principal 				::=	declaracion_variables
-										| declaracion_sub
-										| declaracion_funcion
-										| declaracion_type;
+										| sentencias_principales:ssp fin_linea sentencia_principal:sp
+										{:	RESULT = ast.new SentenciasPrincipales();
+											for (int i = 0; i < ssp.size(); i++)
+												RESULT.add(ssp.getAt(i));
+											RESULT.add(sp);:};
+
+sentencia_principal 				::=	declaracion_variables:dv
+										{:	RESULT = dv;:}
+
+										| declaracion_sub:ds 
+										{:	RESULT = ds;:}
+										
+										| declaracion_funcion:df
+										{:	RESULT = df;:}
+										
+										| declaracion_type:dt
+										{:	RESULT = dt;:};
 
 /*TODO: Gramatica para Dim a, b, c As Integer*/
-declaracion_variables				::=	visibilidad DIM lista_variables AS tipo_dato
+declaracion_variables				::=	visibilidad:v DIM IDENTIFICADOR:id AS tipo_dato:td
+										{:	RESULT = ast.new DeclaracionVariables(v, id, td);:}
+
 										| visibilidad DIM error {:parser.report_error("declaracion_variables: Se esperaba IDENTIFICADOR", "\t");:} AS tipo_dato
-										| visibilidad DIM lista_variables error {:parser.report_error("declaracion_variables: Se esperaba AS", "\t");:} tipo_dato
-										| visibilidad DIM lista_variables AS NEW llamado_funcion;
+										| visibilidad DIM IDENTIFICADOR error {:parser.report_error("declaracion_variables: Se esperaba AS", "\t");:} tipo_dato
+										| visibilidad DIM IDENTIFICADOR AS error {:parser.report_error("declaracion_variables: Se esperaba tipo_dato", "\t");:}
+										| visibilidad:v DIM IDENTIFICADOR:lv AS NEW llamado_funcion:lf
+										{:	RESULT = ast.new DeclaracionVariables(v, lv, lf);:};
 										
-declaracion_sub						::=	visibilidad SUB IDENTIFICADOR parametros fin_linea cuerpo_funcion END SUB
+declaracion_sub						::=	visibilidad:v SUB IDENTIFICADOR:id parametros:p fin_linea cuerpo_funcion:cf END SUB
+										{:	RESULT = ast.new DeclaracionSub(v, p, cf);:}
+
 										| visibilidad SUB error{:parser.report_error("declaracion_sub: Se esperaba IDENTIFICADOR", "\t");:} parametros fin_linea cuerpo_funcion END SUB
 										| visibilidad SUB IDENTIFICADOR parametros fin_linea cuerpo_funcion error{:parser.report_error("declaracion_sub: Se esperaba END", "\t");:} SUB
 										| visibilidad SUB IDENTIFICADOR parametros fin_linea cuerpo_funcion END error{:parser.report_error("declaracion_sub: Se esperaba SUB", "\t");:};
 
-declaracion_funcion					::=	visibilidad FUNCTION IDENTIFICADOR parametros fin_linea cuerpo_funcion END FUNCTION
+declaracion_funcion					::=	visibilidad:v FUNCTION IDENTIFICADOR:id parametros:p fin_linea cuerpo_funcion:cf END FUNCTION
+										{:	RESULT = ast.new DeclaracionFuncion(v, p, cf);:}
+
 										| visibilidad FUNCTION error{:parser.report_error("declaracion_funcion: Se esperaba IDENTIFICADOR", "\t");:} parametros fin_linea cuerpo_funcion END FUNCTION
-										| visibilidad FUNCTION IDENTIFICADOR parametros error{:parser.report_error("declaracion_funcion: Se esperaba AS", "\t");:} tipo_dato fin_linea cuerpo_funcion END FUNCTION
 										| visibilidad FUNCTION IDENTIFICADOR parametros fin_linea cuerpo_funcion error{:parser.report_error("declaracion_funcion: Se esperaba END", "\t");:} FUNCTION
 										| visibilidad FUNCTION IDENTIFICADOR parametros fin_linea cuerpo_funcion END error{:parser.report_error("declaracion_funcion: Se esperaba FUNCTION", "\t");:};
 
-declaracion_type					::=	visibilidad TYPE IDENTIFICADOR fin_linea cuerpo_nuevo_tipo END TYPE
+declaracion_type					::=	visibilidad:v TYPE IDENTIFICADOR:id fin_linea cuerpo_nuevo_tipo:cnt END TYPE
+										{:	RESULT = ast.new DeclaracionType(v, id, cnt);:}
+
 										| visibilidad TYPE error{:parser.report_error("declaracion_type: Se esperaba IDENTIFICADOR", "\t");:} fin_linea cuerpo_nuevo_tipo END TYPE
 										| visibilidad TYPE IDENTIFICADOR fin_linea cuerpo_nuevo_tipo error{:parser.report_error("declaracion_type: Se esperaba END", "\t");:} TYPE
 										| visibilidad TYPE IDENTIFICADOR fin_linea cuerpo_nuevo_tipo END error{:parser.report_error("declaracion_type: Se esperaba TYPE", "\t");:};
 
-cuerpo_funcion						::=	sentencias_cuerpo_funcion
+cuerpo_funcion						::=	sentencias_cuerpo_funcion:scf
+										{:	RESULT = ast.new CuerpoFuncion(scf);:}
+
 										| ;
 
-sentencias_cuerpo_funcion			::=	sentencia_cuerpo_funcion 
-										| sentencias_cuerpo_funcion sentencia_cuerpo_funcion;
+sentencias_cuerpo_funcion			::=	sentencia_cuerpo_funcion:scf
+										{:	RESULT = ast.new SentenciasCuerpoFuncion();
+											RESULT.add(scf);:}
 
-sentencia_cuerpo_funcion 			::=	propiedad argumentos fin_linea
-										| declaracion_variables fin_linea
-										| sentencia_for_step fin_linea
-										| sentencia_do_while fin_linea
-										| sentencia_if fin_linea
-										| sentencia_consola fin_linea
-										| sentencia_llamado_funcion fin_linea
-										| sentencia_asignacion fin_linea;
+										| sentencias_cuerpo_funcion:sscf sentencia_cuerpo_funcion:scf
+										{:	RESULT = ast.new SentenciasCuerpoFuncion();
+											for (int i = 0; i < sscf.size(); i++)
+												RESULT.add(sscf.getAt(i));
+											RESULT.add(scf);:};
 
-sentencia_for_step					::=	FOR IDENTIFICADOR OP_IGUAL expresion TO expresion STEP tipos_step fin_linea cuerpo_funcion NEXT IDENTIFICADOR
+sentencia_cuerpo_funcion 			::=	propiedad:p argumentos:a fin_linea
+										{:	RESULT = ast.new SentenciaLlamadoFuncionPropiedad(p, a);:}
+
+										| DIM IDENTIFICADOR:id AS tipo_dato:td fin_linea
+										{:	RESULT = ast.new DeclaracionVariablesCuerpoFuncion(id, td);:}
+										
+										| DIM IDENTIFICADOR:id AS NEW llamado_funcion:lf fin_linea
+										{:	RESULT = ast.new DeclaracionVariablesCuerpoFuncion(id, lf);:}
+
+										| sentencia_for_step:sft fin_linea
+										{:	RESULT = sft;:}
+
+										| sentencia_do_while:sdw fin_linea
+										{:	RESULT = sdw;:}
+
+										| sentencia_if:si fin_linea
+										{:	RESULT = si;:}
+
+										| sentencia_consola:sc fin_linea
+										{:	RESULT = sc;:}
+
+										| sentencia_llamado_funcion:slf fin_linea
+										{:	RESULT = slf;:}
+
+										| sentencia_asignacion:sa fin_linea
+										{:	RESULT = sa;:};
+
+sentencia_for_step					::=	FOR IDENTIFICADOR:id OP_IGUAL expresion:e1 TO expresion:e2 STEP tipos_step:ts fin_linea cuerpo_funcion:cf NEXT IDENTIFICADOR
+										{:	RESULT = ast.new SentenciaForStep(id, e1, e2, ts, cf);:}
+
 										| FOR error{:parser.report_error("sentencia_for_step: Se esperaba IDENTIFICADOR", "\t");:} OP_IGUAL expresion TO expresion STEP tipos_step fin_linea cuerpo_funcion NEXT IDENTIFICADOR
 										| FOR IDENTIFICADOR error{:parser.report_error("sentencia_for_step: Se esperaba OP_IGUAL", "\t");:} expresion TO expresion STEP tipos_step fin_linea cuerpo_funcion NEXT IDENTIFICADOR
 										| FOR IDENTIFICADOR OP_IGUAL expresion error{:parser.report_error("sentencia_for_step: Se esperaba TO", "\t");:} expresion STEP tipos_step fin_linea cuerpo_funcion NEXT IDENTIFICADOR
@@ -202,139 +264,305 @@ sentencia_for_step					::=	FOR IDENTIFICADOR OP_IGUAL expresion TO expresion STE
 										| FOR IDENTIFICADOR OP_IGUAL expresion TO expresion STEP tipos_step fin_linea cuerpo_funcion NEXT error{:parser.report_error("sentencia_for_step: Se esperaba IDENTIFICADOR", "\t");:};
 
 /*TODO: Agregar DO LOOP UNTIL expresion*/
-sentencia_do_while					::=	DO WHILE expresion fin_linea cuerpo_funcion LOOP
+sentencia_do_while					::=	DO WHILE expresion:e fin_linea cuerpo_funcion:cf LOOP
+										{:	RESULT = ast.new SentenciaDoWhile(e, cf);:}
+
 										| DO error{:parser.report_error("sentencia_do_while: Se esperaba WHILE", "\t");:} expresion fin_linea cuerpo_funcion LOOP
+										| DO WHILE error{:parser.report_error("sentencia_do_while: Se esperaba expresion", "\t");:} fin_linea cuerpo_funcion LOOP
+										| DO WHILE expresion error{:parser.report_error("sentencia_do_while: Se esperaba fin_linea", "\t");:} cuerpo_funcion LOOP
 										| DO WHILE expresion fin_linea cuerpo_funcion error{:parser.report_error("sentencia_do_while: Se esperaba LOOP", "\t");:};
 
-sentencia_if 						::=	IF expresion THEN fin_linea cuerpo_funcion sentencia_else_if sentencia_else END IF
+sentencia_if 						::=	IF expresion:e THEN fin_linea cuerpo_funcion:cf sentencias_else_if:ssei sentencia_else:se END IF
+										{:	RESULT = ast.new SentenciaIf(e, cf, ssei, se);:}
+
 										| IF expresion error{:parser.report_error("sentencia_if: Se esperaba THEN", "\t");:} fin_linea cuerpo_funcion sentencia_else_if sentencia_else END IF
-										| IF expresion THEN fin_linea cuerpo_funcion sentencia_else_if sentencia_else error{:parser.report_error("sentencia_if: Se esperaba END", "\t");:} IF
-										| IF expresion THEN fin_linea cuerpo_funcion sentencia_else_if sentencia_else_if END error{:parser.report_error("sentencia_if: Se esperaba IF", "\t");:}
-										| IF expresion THEN fin_linea cuerpo_funcion END IF
-										| IF expresion THEN fin_linea cuerpo_funcion sentencia_else END IF;
+										| IF expresion THEN fin_linea cuerpo_funcion sentencias_else_if sentencia_else error{:parser.report_error("sentencia_if: Se esperaba END", "\t");:} IF
+										| IF expresion THEN fin_linea cuerpo_funcion sentencias_else_if sentencia_else END error{:parser.report_error("sentencia_if: Se esperaba IF", "\t");:}
+										| IF expresion:e THEN fin_linea cuerpo_funcion:cf END IF
+										{:	RESULT = ast.new SentenciaIf(e, cf);:}
 
-sentencia_else_if					::=	ELSE_IF expresion THEN fin_linea cuerpo_funcion sentencia_else_if
-										| ELSE_IF expresion error{:parser.report_error("sentencia_else_if: Se esperaba THEN", "\t");:} fin_linea cuerpo_funcion sentencia_else_if
-										| ELSE_IF expresion THEN fin_linea cuerpo_funcion error{:parser.report_error("sentencia_else_if: Se esperaba sentencia_else_if", "\t");:}/*
-										| */;
+										| IF expresion THEN fin_linea cuerpo_funcion error{:parser.report_error("sentencia_if: Se esperaba END", "\t");:} IF
+										| IF expresion THEN fin_linea cuerpo_funcion END error{:parser.report_error("sentencia_if: Se esperaba IF", "\t");:}
+										| IF expresion:e THEN fin_linea cuerpo_funcion:cf sentencia_else:se END IF
+										{:	RESULT = ast.new SentenciaIf(e, cf, se);:};
 
-sentencia_else 						::=	ELSE fin_linea cuerpo_funcion/*
-										| */;
+sentencias_else_if					::= sentencia_else_if:sei
+										{:	RESULT = ast.new SentenciasElseIf();
+											RESULT.add(sei);:}
 
-sentencia_consola					::=	WRITE PAR_IZQ termino PAR_DER
+										| sentencias_else_if:ssei sentencia_else_if:sei
+										{:	ssei.add(sei);:};
+
+sentencia_else_if					::=	ELSE_IF expresion:e THEN fin_linea cuerpo_funcion:cf 
+										{:	RESULT = ast.new SentenciaElseIf(e, cf);:};
+
+sentencia_else 						::=	ELSE fin_linea cuerpo_funcion:cf
+										{:	RESULT = ast.new SentenciaElse(cf);:};
+
+sentencia_consola					::=	WRITE PAR_IZQ PAR_DER
+										{:	RESULT = ast.new SentenciaConsola("Console.Write", ast.new Termino(""));:}
+
+										| WRITE PAR_IZQ termino:t PAR_DER
+										{:	RESULT = ast.new SentenciaConsola("Console.Write", t);:}
+
 										| WRITE error{:parser.report_error("sentencia_consola WRITE: Se esperaba \"(\"", "\t");:} PAR_DER
 										| WRITE PAR_IZQ termino error{:parser.report_error("sentencia_consola WRITE: Se esperaba \")\"", "\t");:}
-										| READ PAR_IZQ termino PAR_DER
+										| READ PAR_IZQ termino:t PAR_DER
+										{:	RESULT = ast.new SentenciaConsola("Console.In", t);:}
+
+										| READ PAR_IZQ PAR_DER
+										{:	RESULT = ast.new SentenciaConsola("Console.In", ast.new Termino(""));:}
+
 										| READ error{:parser.report_error("sentencia_consola READ: Se esperaba \"(\"", "\t");:} termino PAR_DER
 										| READ PAR_IZQ termino error{:parser.report_error("sentencia_consola READ: Se esperaba \")\"", "\t");:};
 
-cuerpo_nuevo_tipo					::=	sentencias_cuerpo_nuevo_tipo
+cuerpo_nuevo_tipo					::=	sentencias_cuerpo_nuevo_tipo:scnt
+										{:	RESULT = ast.new CuerpoNuevoTipo(scnt);:}
+
 										| ;
 
-sentencias_cuerpo_nuevo_tipo		::=	declaracion_variables_nuevo_tipo fin_linea
-										| sentencias_cuerpo_nuevo_tipo declaracion_variables_nuevo_tipo;
+sentencias_cuerpo_nuevo_tipo		::=	declaracion_variables_nuevo_tipo:dvnt fin_linea
+										{:	RESULT = ast.new SentenciasCuerpoNuevoTipo();
+											RESULT.add(dvnt);:}
 
-declaracion_variables_nuevo_tipo	::=	IDENTIFICADOR AS tipo_dato;
+										| sentencias_cuerpo_nuevo_tipo:sscnt declaracion_variables_nuevo_tipo:dvnt fin_linea
+										{:	RESULT = ast.new SentenciasCuerpoNuevoTipo();
+											for (int i = 0; i < sscnt.size(); i++) {
+												RESULT.add(sscnt.getAt(i));
+											}
+											RESULT.add(dvnt);:};
+
+declaracion_variables_nuevo_tipo	::=	IDENTIFICADOR:id AS tipo_dato:td
+										{:	RESULT = ast.new DeclaracionVariablesNuevoTipo(id, td);:};
 
 parametros							::=	PAR_IZQ PAR_DER
+										{:	RESULT = ast.new Parametros();:}
+
 										| PAR_IZQ error{:parser.report_error("parametros: Se esperaba \")\"", "\t");:}
-										| PAR_IZQ lista_parametros PAR_DER
+										| PAR_IZQ lista_parametros:lp PAR_DER
+										{:	RESULT = ast.new Parametros(lp);:}
+
 										| PAR_IZQ lista_parametros error{:parser.report_error("parametros: Se esperaba \")\"", "\t");:};
 
-lista_parametros					::=	IDENTIFICADOR AS tipo_dato
-										| forma_de_paso IDENTIFICADOR AS tipo_dato
+lista_parametros					::=	IDENTIFICADOR:id AS tipo_dato:td
+										{:	RESULT = ast.new ListaParametros();
+											RESULT.add(ast.new Parametro(id, td));:}
+
+										| forma_de_paso:fp IDENTIFICADOR:id AS tipo_dato:td
+										{:	RESULT = ast.new ListaParametros();
+											RESULT.add(ast.new Parametro(fp, id, td));:}
+
 										| forma_de_paso error{:parser.report_error("lista_parametros: Se esperaba IDENTIFICADOR", "\t");:} AS tipo_dato
 										| forma_de_paso IDENTIFICADOR error{:parser.report_error("lista_parametros: Se esperaba AS", "\t");:} tipo_dato
-										| lista_parametros COMA forma_de_paso IDENTIFICADOR AS tipo_dato
+										| lista_parametros:lp COMA forma_de_paso:fp IDENTIFICADOR:id AS tipo_dato:td
+										{:	RESULT = ast.new ListaParametros();
+											for (int i = 0; i < lp.size(); i++) {
+												RESULT.add(lp.getAt(i));
+											}
+											RESULT.add(ast.new Parametro(fp, id, td));:}
+
 										| lista_parametros error{:parser.report_error("lista_parametros: Se esperaba COMA", "\t");:} forma_de_paso IDENTIFICADOR AS tipo_dato
 										| lista_parametros COMA forma_de_paso error{:parser.report_error("lista_parametros: Se esperaba IDENTIFICADOR", "\t");:} AS tipo_dato
 										| lista_parametros COMA forma_de_paso IDENTIFICADOR error{:parser.report_error("lista_parametros: Se esperaba AS", "\t");:} tipo_dato;
 
 forma_de_paso 						::=	BYVAL
-										| BYREF;
+										{:	RESULT = ast.new FormaPaso("ByVal");:}
 
-sentencia_asignacion				::=	receptor_asignacion OP_IGUAL expresion
-										| expresion OP_IGUAL expresion;
+										| BYREF
+										{:	RESULT = ast.new FormaPaso("ByRef");:};
 
-receptor_asignacion					::=	IDENTIFICADOR
-										| propiedad;
+sentencia_asignacion				::=	receptor_asignacion:ra OP_IGUAL expresion:e
+										{:	RESULT = ast.new SentenciaAsignacion(ra, e);:}
 
-sentencia_llamado_funcion			::=	CALL llamado_funcion
+										| receptor_asignacion:ra OP_IGUAL sentencia_consola:sc
+										{:	RESULT = ast.new SentenciaAsignacion(ra, sc);:}
+
+										| expresion:e1 OP_IGUAL expresion:e2
+										{:	RESULT = ast.new SentenciaAsignacion(e1, e2);:};
+
+receptor_asignacion					::=	IDENTIFICADOR:id
+										{:	RESULT = ast.new ReceptorAsignacion(id);:}
+										
+										| propiedad:p
+										{:	RESULT = ast.new ReceptorAsignacion(p);:};
+
+sentencia_llamado_funcion			::=	CALL llamado_funcion:lf
+										{:	RESULT = ast.new SentenciaLlamadoFuncion(lf);:}
+
 										| CALL error{:parser.report_error("Sentencia llamado funcion: Se esperaba el llamado a la funcion", "\t");:};
 
-llamado_funcion 					::=	IDENTIFICADOR argumentos;
+llamado_funcion 					::=	IDENTIFICADOR:id argumentos:a
+										{:	RESULT = ast.new LlamadoFuncion(id, a);:};
 
 argumentos							::=	PAR_IZQ PAR_DER
+										{:	RESULT = ast.new Argumentos();:}
+
 										| PAR_IZQ error{:parser.report_error("Argumentos: Se esperaba \")\"", "\t");:}
-										| PAR_IZQ lista_argumentos PAR_DER
+										| PAR_IZQ lista_argumentos:la PAR_DER
+										{:	RESULT = ast.new Argumentos(la);:}
+
 										| PAR_IZQ lista_argumentos error{:parser.report_error("Argumentos: Se esperaba \")\"", "\t");:};
 
-lista_argumentos					::=	expresion
-										| expresion COMA lista_argumentos;
+lista_argumentos					::=	expresion:e
+										{:	RESULT = ast.new ListaArgumentos();
+											RESULT.add(e);:}
 
-expresion							::=	expresion operador_aritmetico expresion
-										| expresion operador_relacional expresion
-										| expresion operador_logico expresion
-										| PAR_IZQ expresion PAR_DER
-										| OP_NOT expresion
-										| operador_negacion expresion
-										| termino;
+										| lista_argumentos:la COMA expresion:e
+										{:	RESULT = ast.new ListaArgumentos();
+											for (int i = 0; i < la.size(); i++) {
+												RESULT.add(la.getAt(i));
+											}
+											RESULT.add(e);:};
 
-operador_aritmetico					::=	operador_aritmetico_suma
-										| operador_aritmetico_multiplicacion;
+expresion							::=	expresion:e1 operador_aritmetico:o expresion:e2
+										{:	RESULT = ast.new Expresion(e1, o, e2);:}
+
+										| expresion:e1 operador_relacional:o expresion:e2
+										{:	RESULT = ast.new Expresion(e1, o, e2);:}
+
+										| expresion:e1 operador_logico:o expresion:e2
+										{:	RESULT = ast.new Expresion(e1, o, e2);:}
+
+										| PAR_IZQ expresion:e PAR_DER
+										{:	RESULT = ast.new Expresion(e);:}
+
+										| OP_NOT:o expresion:e
+										{:	RESULT = ast.new Expresion(e, "<>");:}
+
+										| operador_negacion:o expresion:e
+										{:	RESULT = ast.new Expresion(e, o);:}
+
+										| termino:t
+										{:	RESULT = ast.new Expresion(t);:};
+
+operador_aritmetico					::=	operador_aritmetico_suma:o
+										{:	RESULT = o;:}
+
+										| operador_aritmetico_multiplicacion:o
+										{:	RESULT = o;:};
 
 operador_aritmetico_suma			::=	OP_SUMA
-										| OP_RESTA;
+										{:	RESULT = "+";:}
+
+										| OP_RESTA
+										{:	RESULT = "-";:};
 
 operador_aritmetico_multiplicacion	::=	OP_POTENCIA
+										{:	RESULT = "^";:}
+
 										| OP_MULTIPLICACION
-										| OP_DIVISION;
+										{:	RESULT = "*";:}
+
+										| OP_DIVISION
+										{:	RESULT = "/";:};
 
 operador_relacional					::=	OP_MAYOR_QUE
+										{: RESULT = ">";:}
+
 										| OP_MENOR_QUE
+										{: RESULT = "<";:}
+
 										| OP_MAYOR_IGUAL_QUE
+										{: RESULT = ">=";:}
+
 										| OP_MENOR_IGUAL_QUE
-										| operador_distinto;
+										{: RESULT = "<=";:}
+
+										| OP_IGUAL
+										{:	RESULT = "=";:}
+
+										| operador_distinto:o
+										{: RESULT = o;:};
 
 operador_logico						::=	OP_AND
-										| OP_OR;
+										{: RESULT = "And";:}
 
-operador_negacion					::=	OP_RESTA;
+										| OP_OR
+										{: RESULT = "Or";:};
+
+operador_negacion					::=	OP_RESTA
+										{: RESULT = "-";:};
 
 operador_distinto					::=	OP_MENOR_QUE OP_MAYOR_QUE
+										{: RESULT = "<>";:}
+
 										| OP_MENOR_QUE error{:parser.report_error("operador_distinto: Se esperaba OP_MAYOR_QUE", "\t");:};
 
-propiedad							::=	IDENTIFICADOR cadena_propiedades;
+propiedad							::=	IDENTIFICADOR:id cadena_propiedades:cp
+										{: RESULT = ast.new Propiedad(cp, id);:};
 
-cadena_propiedades					::=	PUNTO IDENTIFICADOR
-										| PUNTO IDENTIFICADOR cadena_propiedades;
+cadena_propiedades					::=	PUNTO IDENTIFICADOR:id
+										{: RESULT = ast.new CadenaPropiedades();
+											RESULT.add(id);:}
+
+										| cadena_propiedades:cp PUNTO IDENTIFICADOR:id
+										{: RESULT = ast.new CadenaPropiedades();
+											for (int i = 0; i < cp.size(); i++) {
+												RESULT.add(cp.getAt(i));
+											}
+											RESULT.add(id);:};
 
 fin_linea 							::=	FIN_LINEA fin_linea
 										| FIN_LINEA;
 
-termino								::=	receptor_asignacion
-										| ENTERO_LITERAL
-										| REAL_LITERAL
-										| CARACTER_LITERAL
-										| CADENA_LITERAL
-										| TRUE_LITERAL
+termino								::=	receptor_asignacion:ra
+										{: RESULT = ast.new Termino(ra);:}
+
+										| ENTERO_LITERAL:n
+										{:	RESULT = ast.new Termino(Integer.toString(n));:}
+
+										| REAL_LITERAL:n
+										{:	RESULT = ast.new Termino(Double.toString(n));:}
+
+										| CARACTER_LITERAL:n
+										{: RESULT = ast.new Termino(Character.toString(n));:}
+
+										| CADENA_LITERAL:n
+										{: RESULT = ast.new Termino(n);:}
+
+										| TRUE_LITERAL:n
+										{: RESULT = ast.new Termino("True");:}
+
 										| FALSE_LITERAL
-										| llamado_funcion;
+										{: RESULT = ast.new Termino("False");:}
+
+										| llamado_funcion:lf
+										{: RESULT = ast.new Termino(lf);:};
 
 tipo_dato							::=	ENTERO
+										{: RESULT = ast.new TipoDato("Integer");:}
+
 										| REAL
+										{: RESULT = ast.new TipoDato("Double");:}
+
 										| CADENA
+										{: RESULT = ast.new TipoDato("String");:}
+
 										| CARACTER
+										{: RESULT = ast.new TipoDato("Character");:}
+
 										| BOOLEAN
-										| IDENTIFICADOR /*Puede ser un nuevo tipo de dato*/;
+										{: RESULT = ast.new TipoDato("Boolean");:}
+
+										| IDENTIFICADOR:id
+										{: RESULT = ast.new TipoDato(id);:} /*Puede ser un nuevo tipo de dato*/;
 
 visibilidad							::=	PUBLIC
+										{:	RESULT = ast.new Visibilidad("Public");:}
+
 										| PRIVATE
-										| ;
+										{:	RESULT = ast.new Visibilidad("Private");:}
 
-lista_variables						::= IDENTIFICADOR
-										| IDENTIFICADOR COMA lista_variables
-										| IDENTIFICADOR COMA error{:parser.report_error("lista_variables: Se esperaba lista_variables", "\t");:};
+										| {:RESULT = ast.new Visibilidad("");:};
 
-tipos_step						::= ENTERO_LITERAL
-										| REAL_LITERAL;
+// lista_variables						::= IDENTIFICADOR:id
+// 										| lista_variables:lv COMA IDENTIFICADOR:id
+// 										| error{:parser.report_error("lista_variables: Se esperaba una lista_variables", "\t");:} COMA IDENTIFICADOR
+// 										| lista_variables error{:parser.report_error("lista_variables: Se esperaba COMA", "\t");:} IDENTIFICADOR
+// 										| lista_variables COMA error{:parser.report_error("lista_variables: Se esperaba IDENTIFICADOR", "\t");:};
+
+tipos_step						::= ENTERO_LITERAL:n
+									{:	RESULT = Integer.toString(n);:}
+										
+									| REAL_LITERAL:n
+									{:	RESULT = Double.toString(n);:};	

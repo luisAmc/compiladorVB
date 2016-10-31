@@ -6,7 +6,6 @@
 package VisualBasic;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -14,7 +13,10 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.JTextArea;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  *
@@ -39,6 +41,10 @@ public class MainWindow extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        astWindow = new javax.swing.JDialog();
+        jPanel4 = new javax.swing.JPanel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        ta_astOutput = new javax.swing.JTextArea();
         jPanel1 = new javax.swing.JPanel();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel2 = new javax.swing.JPanel();
@@ -56,7 +62,41 @@ public class MainWindow extends javax.swing.JFrame {
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItem2 = new javax.swing.JMenuItem();
 
+        ta_astOutput.setEditable(false);
+        ta_astOutput.setColumns(20);
+        ta_astOutput.setRows(5);
+        jScrollPane3.setViewportView(ta_astOutput);
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 1077, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(21, Short.MAX_VALUE))
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addGap(19, 19, 19)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 810, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(22, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout astWindowLayout = new javax.swing.GroupLayout(astWindow.getContentPane());
+        astWindow.getContentPane().setLayout(astWindowLayout);
+        astWindowLayout.setHorizontalGroup(
+            astWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        astWindowLayout.setVerticalGroup(
+            astWindowLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setFont(new java.awt.Font("Calibri", 0, 10)); // NOI18N
 
         ta_source_code.setEditable(false);
         ta_source_code.setColumns(20);
@@ -102,8 +142,13 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
 
-        btn_generate_ast.setText("Ver AST");
+        btn_generate_ast.setText("Generar AST");
         btn_generate_ast.setEnabled(false);
+        btn_generate_ast.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btn_generate_astMouseClicked(evt);
+            }
+        });
 
         jButton3.setText("Abrir archivo");
         jButton3.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -234,14 +279,32 @@ public class MainWindow extends javax.swing.JFrame {
             System.setOut(ps);
             
             parser p = new parser(new Lexer(new FileReader(current_source_file.getPath())));
-            Object result = p.parse().value;
-            
-            if (ta_output.getText().length() == 0)
+            result = p.parse().value;
+           
+//            Object result = p.parse().value;
+            if (ta_output.getText().length() == 0) {
                 ta_output.setText("No ocurrieron errores.");
+                 btn_generate_ast.setEnabled(true);
+            }
         } catch (Exception ex) {
         
         } 
     }//GEN-LAST:event_btn_parse_fileMouseClicked
+
+    private void btn_generate_astMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btn_generate_astMouseClicked
+        if (btn_generate_ast.isEnabled()) {
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            astWindow.pack();
+            astWindow.setModal(true);
+            ta_astOutput.setText(gson.toJson(result));
+
+            astWindow.setLocationRelativeTo(this);
+            astWindow.setVisible(true);
+            //JOptionPane.showMessageDialog(null, result.toString());
+        } else {
+            JOptionPane.showMessageDialog(this, "No tienen que haber errores en el parser para realizar esta acción.", "Errores en parser", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btn_generate_astMouseClicked
 
     /**
      * @param args the command line arguments
@@ -279,6 +342,7 @@ public class MainWindow extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JDialog astWindow;
     private javax.swing.JButton btn_generate_ast;
     private javax.swing.JButton btn_parse_file;
     private javax.swing.JButton jButton3;
@@ -289,22 +353,30 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JTextArea ta_astOutput;
     private javax.swing.JTextArea ta_output;
     private javax.swing.JTextArea ta_source_code;
     private javax.swing.JTextField tf_file_name;
     // End of variables declaration//GEN-END:variables
     
     private File current_source_file;
+    private Object result;
     
     private void openFile() {
         jTabbedPane1.setSelectedIndex(0);
         
         try {
             JFileChooser fc = new JFileChooser();
-            fc.setCurrentDirectory(new File("./src/testcodes"));
+            fc.setCurrentDirectory(new File("./src/"));
+            
+            FileFilter filter = new FileNameExtensionFilter("Archivo VB", "vb");
+            fc.setFileFilter(filter);
+            
             int fc_value = fc.showOpenDialog(this);
             
             if (fc_value == JFileChooser.APPROVE_OPTION) {
@@ -314,7 +386,7 @@ public class MainWindow extends javax.swing.JFrame {
                 showSourceFileText();
                 
                 btn_parse_file.setEnabled(true);
-                btn_generate_ast.setEnabled(true);
+                btn_generate_ast.setEnabled(false);
             } else {
                 tf_file_name.setText("Ningun archivo seleccionado");
                 btn_parse_file.setEnabled(false);
