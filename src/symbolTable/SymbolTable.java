@@ -56,6 +56,16 @@ public class SymbolTable {
         this.name = "";
         this.children = new ArrayList();
     }
+
+    public String getTableName() {
+        String ret_val = this.name;
+        for (SymbolTable parent_table = this.getParent(); parent_table != null; parent_table = parent_table.getParent())
+            if (ret_val.isEmpty())
+                ret_val = parent_table.name;
+            else
+                ret_val = parent_table.name + "." + ret_val;
+        return ret_val;
+    }
     
     //TODO: get for functions/subs
     //Can i search with the products?
