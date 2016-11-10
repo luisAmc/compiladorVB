@@ -22,6 +22,7 @@ Function funcion1()
 	'Comentario
 	Dim a As Double
 	b = Console.In()
+	numero = Console.In()
 	Dim numero2 As Double
 	
 	If (b >= 3) Then

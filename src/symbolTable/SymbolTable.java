@@ -69,8 +69,7 @@ public class SymbolTable {
         return ret_val;
     }
     
-    //TODO: get for functions/subs
-    //Can i search with the products?
+    //TODO: get for TypeType
     public Symbol get(String name) {
         Symbol ret_val = new Symbol();
         for (SymbolTable table = this; table != null; table = table.getParent()) {

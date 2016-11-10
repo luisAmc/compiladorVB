@@ -1086,6 +1086,17 @@ class CUP$parser$actions {
 											offsets.push(current_offset);
 											current_offset = 0;
 
+											for (int i = 0; i < p.size(); i++) {
+												AST.Parametro param = p.getListaParametros().getAt(i);
+												if (param.getTipoDato().equals("Integer"))
+													current_scope.add(param.getId(), new Symbol(new IntegerType(param.getId())));
+												else if (param.getTipoDato().equals("Double"))
+													current_scope.add(param.getId(), new Symbol(new DoubleType(param.getId())));
+												else if (param.getTipoDato().equals("Character"))
+													current_scope.add(param.getId(), new Symbol(new CharacterType(param.getId())));
+												else if (param.getTipoDato().equals("Boolean"))
+													current_scope.add(param.getId(), new Symbol(new BooleanType(param.getId())));
+											}
 										
               CUP$parser$result = parser.getSymbolFactory().newSymbol("NT$0",44, ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
@@ -1141,6 +1152,18 @@ class CUP$parser$actions {
 
 											offsets.push(current_offset);
 											current_offset = 0;
+
+											for (int i = 0; i < p.size(); i++) {
+												AST.Parametro param = p.getListaParametros().getAt(i);
+												if (param.getTipoDato().equals("Integer"))
+													current_scope.add(param.getId(), new Symbol(new IntegerType(param.getId())));
+												else if (param.getTipoDato().equals("Double"))
+													current_scope.add(param.getId(), new Symbol(new DoubleType(param.getId())));
+												else if (param.getTipoDato().equals("Character"))
+													current_scope.add(param.getId(), new Symbol(new CharacterType(param.getId())));
+												else if (param.getTipoDato().equals("Boolean"))
+													current_scope.add(param.getId(), new Symbol(new BooleanType(param.getId())));
+											}
 										
               CUP$parser$result = parser.getSymbolFactory().newSymbol("NT$1",45, ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
@@ -2265,7 +2288,11 @@ parser.report_error("lista_parametros: Se esperaba AS", "\t");
 		int idleft = ((java_cup.runtime.Symbol)CUP$parser$stack.peek()).left;
 		int idright = ((java_cup.runtime.Symbol)CUP$parser$stack.peek()).right;
 		String id = (String)((java_cup.runtime.Symbol) CUP$parser$stack.peek()).value;
-			RESULT = ast.new ReceptorAsignacion(id);
+			
+											if (current_scope.get(id) == null)
+												System.out.println("La variable " + id + " no ha sido declarada.");
+											RESULT = ast.new ReceptorAsignacion(id);
+										
               CUP$parser$result = parser.getSymbolFactory().newSymbol("receptor_asignacion",24, ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;

@@ -1121,6 +1121,10 @@ public class AST {
                 return 0;
             return lista_de_parametros.size();
         }
+        
+        public ListaParametros getListaParametros() {
+            return this.lista_de_parametros;
+        }
 
         public String getAt(int pos) {
             if (!empty)
@@ -1184,6 +1188,14 @@ public class AST {
             this.identificador = id;
             this.tipo_de_dato = td;
             this.non_by = true;
+        }
+
+        public String getId() {
+            return this.identificador;
+        }
+
+        public String getTipoDato() {
+            return tipo_de_dato.getTipoDato();
         }
 
         public String toString() {

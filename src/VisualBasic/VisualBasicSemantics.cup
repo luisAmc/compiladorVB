@@ -226,6 +226,17 @@ declaracion_sub						::=	visibilidad:v SUB IDENTIFICADOR:id parametros:p
 											offsets.push(current_offset);
 											current_offset = 0;
 
+											for (int i = 0; i < p.size(); i++) {
+												AST.Parametro param = p.getListaParametros().getAt(i);
+												if (param.getTipoDato().equals("Integer"))
+													current_scope.add(param.getId(), new Symbol(new IntegerType(param.getId())));
+												else if (param.getTipoDato().equals("Double"))
+													current_scope.add(param.getId(), new Symbol(new DoubleType(param.getId())));
+												else if (param.getTipoDato().equals("Character"))
+													current_scope.add(param.getId(), new Symbol(new CharacterType(param.getId())));
+												else if (param.getTipoDato().equals("Boolean"))
+													current_scope.add(param.getId(), new Symbol(new BooleanType(param.getId())));
+											}
 										:}
 										fin_linea cuerpo_funcion:cf END SUB
 										{:	
@@ -245,6 +256,18 @@ declaracion_funcion					::=	visibilidad:v FUNCTION IDENTIFICADOR:id parametros:p
 
 											offsets.push(current_offset);
 											current_offset = 0;
+
+											for (int i = 0; i < p.size(); i++) {
+												AST.Parametro param = p.getListaParametros().getAt(i);
+												if (param.getTipoDato().equals("Integer"))
+													current_scope.add(param.getId(), new Symbol(new IntegerType(param.getId())));
+												else if (param.getTipoDato().equals("Double"))
+													current_scope.add(param.getId(), new Symbol(new DoubleType(param.getId())));
+												else if (param.getTipoDato().equals("Character"))
+													current_scope.add(param.getId(), new Symbol(new CharacterType(param.getId())));
+												else if (param.getTipoDato().equals("Boolean"))
+													current_scope.add(param.getId(), new Symbol(new BooleanType(param.getId())));
+											}
 										:}
 										fin_linea cuerpo_funcion:cf END FUNCTION
 										{:	
@@ -456,7 +479,11 @@ sentencia_asignacion				::=	receptor_asignacion:ra OP_IGUAL expresion:e
 										{:	RESULT = ast.new SentenciaAsignacion(e1, e2);:};
 
 receptor_asignacion					::=	IDENTIFICADOR:id
-										{:	RESULT = ast.new ReceptorAsignacion(id);:}
+										{:	
+											if (current_scope.get(id) == null)
+												System.out.println("La variable " + id + " no ha sido declarada.");
+											RESULT = ast.new ReceptorAsignacion(id);
+										:}
 										
 										| propiedad:p
 										{:	RESULT = ast.new ReceptorAsignacion(p);:};
