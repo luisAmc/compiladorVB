@@ -925,6 +925,10 @@ public class AST {
             this.argumentos = a;
         }
 
+        public String getId() {
+            return identificador;
+        }
+
         public String toString() {
             return "Llamado de función:\n\t"
                     + "Identificador: " + identificador + "\n\t"
@@ -1284,6 +1288,10 @@ public class AST {
 
         public String toString() {
             return "Tipo de dato:" + tipo_de_dato;
+        }
+
+        public String getTipoDato() {
+            return tipo_de_dato;
         }
 
         private Node getNode() {

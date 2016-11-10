@@ -18,7 +18,7 @@ parser code {:
 				System.err.println(" " + info + " " + message + "\n");
 			else {
 				StringBuffer m = new StringBuffer("Error ");
-				if (info instanceof java_cup.runtime.Symbol) {
+				if (info instanceof Symbol) {
 					m.append(("(Se ha encontrado el token \"" + ((Symbol)info).value + "\" en la linea "
 						+ ((Symbol)info).left + 1 + ", columna " + ((Symbol)info).right + 1) + ")");
 				}

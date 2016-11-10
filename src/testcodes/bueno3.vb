@@ -1,6 +1,5 @@
 Public Type MiNuevoTipo
 	a As Integer
-	b As String
 	c As Double
 End Type
 

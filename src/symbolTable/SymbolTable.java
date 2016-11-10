@@ -6,7 +6,9 @@
 package symbolTable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 
 public class SymbolTable {
@@ -53,7 +55,7 @@ public class SymbolTable {
         this.table = new LinkedHashMap();
         this.parent = parent;
         this.shift = this.parent.shift;
-        this.name = "";
+        this.name = name;
         this.children = new ArrayList();
     }
 
@@ -108,6 +110,20 @@ public class SymbolTable {
 
     public ArrayList<SymbolTable> getChildren() {
         return children;
+    }
+
+    @Override
+    public String toString() {
+        return "Table: " + getTableName() + tableContentToString();
+        
+    }
+
+    private String tableContentToString() {
+        String ret_val = "";
+        for (Map.Entry entry : table.entrySet())
+            ret_val += "\n\t" + entry.getKey() + " :: " + entry.getValue();
+        
+        return ret_val;
     }
     
 }

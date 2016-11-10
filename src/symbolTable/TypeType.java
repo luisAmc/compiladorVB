@@ -63,7 +63,7 @@ public class TypeType extends Type {
 
     @Override
     public String toString() {
-        return domainToString();
+        return ": " + this.name;
     }
 
     @Override
