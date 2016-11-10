@@ -87,7 +87,7 @@ public class FunctionType extends Type{
         for (int i = 0; i < this.product.size(); i++) {
             ret_val += this.product.get(i).toString();
             if (i < this.product.size() - 1)
-                 ret_val += " x ";
+                 ret_val += "x";
         }
         
         return ret_val;
